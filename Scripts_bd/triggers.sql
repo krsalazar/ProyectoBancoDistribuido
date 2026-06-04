@@ -20,6 +20,72 @@ CREATE TRIGGER trg_auditoria_cuentas
 AFTER INSERT OR UPDATE OR DELETE ON cuentas
 FOR EACH ROW EXECUTE FUNCTION fn_auditoria_cuentas();
 
+--captura cualquier cambio y lo inserta a la tabla de auditoria
+CREATE OR REPLACE FUNCTION fn_auditoria_transacciones()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF (TG_OP = 'UPDATE') THEN
+        INSERT INTO auditoria (tabla_afectada, operacion, registro_id, datos_anteriores, datos_nuevos, fecha_hora)
+        VALUES ('transacciones', TG_OP, OLD.id, to_jsonb(OLD), to_jsonb(NEW), CURRENT_TIMESTAMP);
+    ELSIF (TG_OP = 'INSERT') THEN
+        INSERT INTO auditoria (tabla_afectada, operacion, registro_id, datos_nuevos, fecha_hora)
+        VALUES ('transacciones', TG_OP, NEW.id, to_jsonb(NEW), CURRENT_TIMESTAMP);
+    ELSIF (TG_OP = 'DELETE') THEN
+        INSERT INTO auditoria (tabla_afectada, operacion, registro_id, datos_anteriores, fecha_hora)
+        VALUES ('transacciones', TG_OP, OLD.id, to_jsonb(OLD), CURRENT_TIMESTAMP);
+    END IF;
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_auditoria_transacciones
+AFTER INSERT OR UPDATE OR DELETE ON transacciones
+FOR EACH ROW EXECUTE FUNCTION fn_auditoria_transacciones();
+
+-captura cualquier cambio y lo inserta a la tabla de auditoria
+CREATE OR REPLACE FUNCTION fn_auditoria_clientes()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF (TG_OP = 'UPDATE') THEN
+        INSERT INTO auditoria (tabla_afectada, operacion, registro_id, datos_anteriores, datos_nuevos, fecha_hora)
+        VALUES ('clientes', TG_OP, OLD.id, to_jsonb(OLD), to_jsonb(NEW), CURRENT_TIMESTAMP);
+    ELSIF (TG_OP = 'INSERT') THEN
+        INSERT INTO auditoria (tabla_afectada, operacion, registro_id, datos_nuevos, fecha_hora)
+        VALUES ('clientes', TG_OP, NEW.id, to_jsonb(NEW), CURRENT_TIMESTAMP);
+    ELSIF (TG_OP = 'DELETE') THEN
+        INSERT INTO auditoria (tabla_afectada, operacion, registro_id, datos_anteriores, fecha_hora)
+        VALUES ('clientes', TG_OP, OLD.id, to_jsonb(OLD), CURRENT_TIMESTAMP);
+    END IF;
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE TRIGGER trg_auditoria_clientes
+AFTER INSERT OR UPDATE OR DELETE ON clientes
+FOR EACH ROW EXECUTE FUNCTION fn_auditoria_clientes();
+
+-captura cualquier cambio y lo inserta a la tabla de auditoria
+CREATE OR REPLACE FUNCTION fn_auditoria_usuarios()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF (TG_OP = 'UPDATE') THEN
+        INSERT INTO auditoria (tabla_afectada, operacion, registro_id, datos_anteriores, datos_nuevos, fecha_hora)
+        VALUES ('usuarios', TG_OP, OLD.id, to_jsonb(OLD), to_jsonb(NEW), CURRENT_TIMESTAMP);
+    ELSIF (TG_OP = 'INSERT') THEN
+        INSERT INTO auditoria (tabla_afectada, operacion, registro_id, datos_nuevos, fecha_hora)
+        VALUES ('usuarios', TG_OP, NEW.id, to_jsonb(NEW), CURRENT_TIMESTAMP);
+    ELSIF (TG_OP = 'DELETE') THEN
+        INSERT INTO auditoria (tabla_afectada, operacion, registro_id, datos_anteriores, fecha_hora)
+        VALUES ('usuarios', TG_OP, OLD.id, to_jsonb(OLD), CURRENT_TIMESTAMP);
+    END IF;
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_auditoria_usuarios
+AFTER INSERT OR UPDATE OR DELETE ON usuarios
+FOR EACH ROW EXECUTE FUNCTION fn_auditoria_usuarios();
 
 /*Funcion y trigger para la integridad de las operaciones Valida si la cuenta tiene fondos suficientes para aplicar la transaccion
 se basa en el limite de sobregiro de la tabla cuentas*/
