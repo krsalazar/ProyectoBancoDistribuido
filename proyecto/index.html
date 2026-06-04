@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Banco Central — Sistema de Gestión</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    /* ── RESET & VARS ─────────────────────────────────────────────── */
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    :root {
+      --navy:   #04142d;
+      --navy2:  #082b69;
+      --blue:   #1d4ed8;
+      --blue2:  #2563eb;
+      --light:  #f5f7fb;
+      --white:  #ffffff;
+      --gray:   #6b7280;
+      --border: #e5e7eb;
+      --green:  #16a34a;
+      --red:    #dc2626;
+      --amber:  #ea580c;
+      --font-h: 'Syne', sans-serif;
+      --font-b: 'DM Sans', sans-serif;
+      --radius: 14px;
+      --shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    body { font-family: var(--font-b); background: var(--light); color: #111827; overflow-x:hidden; }
+
+    /* ── TOAST ────────────────────────────────────────────────────── */
+    #toast {
+      position:fixed; top:20px; right:20px; z-index:9999;
+      padding:14px 22px; border-radius:10px; font-weight:600;
+      font-size:15px; color:white; opacity:0; transform:translateY(-10px);
+      transition:.3s; pointer-events:none;
+    }
+    #toast.show { opacity:1; transform:translateY(0); }
+    #toast.success { background:#16a34a; }
+    #toast.error   { background:#dc2626; }
+    #toast.info    { background:#2563eb; }
+
+    /* ═══════════════════════════════════════════════════════════════
+       LOGIN PAGE
+    ═══════════════════════════════════════════════════════════════ */
+    #page-login {
+      width:100%; height:100vh; display:flex;
+      background: linear-gradient(135deg,#071a3d,#0d2d66);
+      justify-content:center; align-items:center; padding:20px;
+    }
+    .login-wrapper {
+      width:1000px; max-width:100%; display:flex;
+      border-radius:24px; overflow:hidden; background:white;
+      box-shadow:0 20px 60px rgba(0,0,0,0.35);
+    }
+    .login-left {
+      width:45%; background: linear-gradient(160deg,#04142d,#1d4ed8);
+      display:flex; flex-direction:column; justify-content:center;
+      align-items:center; padding:50px 40px; text-align:center; color:white;
+    }
+    .login-left .bank-icon { font-size:72px; margin-bottom:24px; opacity:.9; }
+    .login-left h1 { font-family:var(--font-h); font-size:36px; font-weight:800; margin-bottom:10px; }
+    .login-left h2 { font-size:18px; font-weight:400; opacity:.8; margin-bottom:12px; }
+    .login-left p  { font-size:14px; opacity:.6; }
+    .login-right {
+      flex:1; padding:60px 50px; display:flex;
+      flex-direction:column; justify-content:center;
+    }
+    .login-right h2 {
+      font-family:var(--font-h); font-size:34px; font-weight:800;
+      color:#111827; margin-bottom:6px;
+    }
+    .login-right p  { color:var(--gray); font-size:15px; margin-bottom:36px; }
+    .field { margin-bottom:20px; }
+    .field label { display:block; font-weight:600; font-size:14px; color:#374151; margin-bottom:8px; }
+    .field input {
+      width:100%; padding:14px 16px; border:1.5px solid var(--border);
+      border-radius:12px; font-size:15px; font-family:var(--font-b);
+      outline:none; transition:.2s;
+    }
+    .field input:focus { border-color:var(--blue); box-shadow:0 0 0 3px rgba(29,78,216,.1); }
+    .login-btn {
+      width:100%; padding:15px; background:var(--blue); color:white;
+      border:none; border-radius:12px; font-size:16px; font-weight:700;
+      font-family:var(--font-h); cursor:pointer; transition:.2s; margin-top:8px;
+    }
+    .login-btn:hover { background:#1749b3; transform:translateY(-1px); }
+    .login-btn:active { transform:translateY(0); }
+    #login-error {
+      color:var(--red); font-size:13px; margin-top:10px; display:none; text-align:center;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       APP SHELL
+    ═══════════════════════════════════════════════════════════════ */
+    #page-app { display:none; flex-direction:row; height:100vh; }
+
+    /* ── SIDEBAR ─────────────────────────────────────────────────── */
+    .sidebar {
+      width:260px; min-width:260px; background:linear-gradient(180deg,var(--navy),var(--navy2));
+      color:white; display:flex; flex-direction:column;
+      justify-content:space-between; transition:.3s;
+    }
+    .sidebar-top { padding:24px 20px 0; }
+    .sidebar-brand {
+      display:flex; align-items:center; gap:14px;
+      padding:0 8px; margin-bottom:36px;
+    }
+    .brand-icon {
+      width:42px; height:42px; background:var(--blue2); border-radius:10px;
+      display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:800;
+      font-family:var(--font-h); flex-shrink:0;
+    }
+    .brand-name { font-family:var(--font-h); font-size:18px; font-weight:700; line-height:1.2; }
+    .nav-menu { list-style:none; }
+    .nav-menu li { margin:4px 0; }
+    .nav-menu a {
+      display:flex; align-items:center; gap:14px; padding:13px 16px;
+      border-radius:12px; color:rgba(255,255,255,.75); text-decoration:none;
+      font-size:15px; font-weight:500; transition:.2s; cursor:pointer;
+    }
+    .nav-menu a i { width:20px; text-align:center; font-size:16px; }
+    .nav-menu a:hover { background:rgba(255,255,255,.1); color:white; }
+    .nav-menu a.active { background:var(--blue2); color:white; }
+    .sidebar-footer { padding:20px; border-top:1px solid rgba(255,255,255,.1); }
+    .sidebar-user { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+    .user-avatar {
+      width:40px; height:40px; border-radius:50%; background:var(--blue2);
+      display:flex; align-items:center; justify-content:center; font-weight:700; font-size:16px;
+    }
+    .user-info .name { font-size:14px; font-weight:600; }
+    .user-info .role { font-size:12px; opacity:.6; }
+    .logout-btn {
+      display:flex; align-items:center; gap:10px; color:rgba(255,255,255,.7);
+      cursor:pointer; font-size:14px; padding:10px 0; transition:.2s;
+      background:none; border:none; font-family:var(--font-b); width:100%;
+    }
+    .logout-btn:hover { color:white; }
+
+    /* ── MAIN ────────────────────────────────────────────────────── */
+    .main { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+    .topbar {
+      background:white; padding:16px 28px; display:flex;
+      justify-content:space-between; align-items:center;
+      border-bottom:1px solid var(--border); box-shadow:0 1px 4px rgba(0,0,0,.04);
+    }
+    .topbar-title { font-family:var(--font-h); font-size:22px; font-weight:700; color:#111827; }
+    .topbar-right { display:flex; align-items:center; gap:16px; }
+    .topbar-right .notif {
+      width:38px; height:38px; border-radius:10px; border:1px solid var(--border);
+      display:flex; align-items:center; justify-content:center;
+      color:var(--gray); cursor:pointer; position:relative; background:white;
+    }
+    .notif-badge {
+      position:absolute; top:-4px; right:-4px; width:16px; height:16px;
+      background:var(--red); border-radius:50%; color:white;
+      font-size:10px; display:flex; align-items:center; justify-content:center;
+    }
+    .pages { flex:1; overflow-y:auto; padding:28px; }
+    .page { display:none; }
+    .page.active { display:block; }
+
+    /* ── CARDS ───────────────────────────────────────────────────── */
+    .stat-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:20px; margin-bottom:28px; }
+    .stat-card {
+      background:white; border-radius:var(--radius); padding:22px;
+      border:1px solid var(--border); box-shadow:var(--shadow);
+      display:flex; align-items:center; gap:18px;
+    }
+    .stat-icon {
+      width:56px; height:56px; border-radius:14px;
+      display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink:0;
+    }
+    .stat-icon.green { background:#ecfdf3; color:var(--green); }
+    .stat-icon.blue  { background:#eff6ff; color:var(--blue2); }
+    .stat-icon.amber { background:#fff7ed; color:var(--amber); }
+    .stat-icon.red   { background:#fef2f2; color:var(--red); }
+    .stat-info h4 { color:var(--gray); font-size:13px; font-weight:500; margin-bottom:6px; }
+    .stat-info h3 { font-family:var(--font-h); font-size:26px; font-weight:800; color:#111827; }
+    .stat-info small { color:var(--green); font-size:12px; font-weight:600; }
+
+    /* ── TABLE CARD ──────────────────────────────────────────────── */
+    .panel {
+      background:white; border-radius:var(--radius); border:1px solid var(--border);
+      box-shadow:var(--shadow); overflow:hidden;
+    }
+    .panel-header {
+      padding:20px 24px; border-bottom:1px solid var(--border);
+      display:flex; justify-content:space-between; align-items:center;
+    }
+    .panel-title { font-family:var(--font-h); font-size:18px; font-weight:700; }
+    .panel-body { padding:0; }
+    table { width:100%; border-collapse:collapse; }
+    th {
+      padding:13px 20px; text-align:left; font-size:12px; font-weight:600;
+      color:var(--gray); text-transform:uppercase; letter-spacing:.5px;
+      background:#f9fafb; border-bottom:1px solid var(--border);
+    }
+    td { padding:15px 20px; font-size:14px; border-bottom:1px solid #f3f4f6; }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:#fafafa; }
+
+    /* ── BADGES ──────────────────────────────────────────────────── */
+    .badge {
+      padding:5px 12px; border-radius:20px; font-size:12px;
+      font-weight:600; display:inline-block;
+    }
+    .badge.green  { background:#ecfdf3; color:#16a34a; }
+    .badge.red    { background:#fef2f2; color:#dc2626; }
+    .badge.blue   { background:#eff6ff; color:#2563eb; }
+    .badge.amber  { background:#fff7ed; color:#ea580c; }
+
+    /* ── BUTTONS ─────────────────────────────────────────────────── */
+    .btn {
+      padding:10px 20px; border-radius:10px; font-size:14px; font-weight:600;
+      cursor:pointer; border:none; font-family:var(--font-b); transition:.2s; display:inline-flex;
+      align-items:center; gap:8px;
+    }
+    .btn:hover { transform:translateY(-1px); }
+    .btn-primary { background:var(--blue); color:white; }
+    .btn-primary:hover { background:#1749b3; }
+    .btn-outline { background:white; color:#374151; border:1px solid var(--border); }
+    .btn-outline:hover { background:#f9fafb; }
+    .btn-danger  { background:#fef2f2; color:var(--red); border:1px solid #fecaca; }
+    .btn-sm { padding:7px 14px; font-size:13px; }
+
+    /* ── FORM GRID ───────────────────────────────────────────────── */
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+    .form-group { margin-bottom:20px; }
+    .form-group.full { grid-column:1/-1; }
+    .form-group label { display:block; font-weight:600; font-size:13px; color:#374151; margin-bottom:8px; }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width:100%; padding:12px 14px; border:1.5px solid var(--border);
+      border-radius:10px; font-size:14px; font-family:var(--font-b); outline:none; transition:.2s;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus { border-color:var(--blue); box-shadow:0 0 0 3px rgba(29,78,216,.08); }
+    .form-group textarea { resize:vertical; min-height:90px; }
+
+    /* ── TRANSACTION TABS ────────────────────────────────────────── */
+    .txn-tabs { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:24px; }
+    .txn-tab {
+      padding:14px; text-align:center; border-radius:12px; font-weight:600;
+      font-size:14px; cursor:pointer; border:1.5px solid var(--border);
+      background:white; color:var(--gray); transition:.2s;
+    }
+    .txn-tab.active { background:var(--blue); color:white; border-color:var(--blue); }
+    .txn-tab:hover:not(.active) { border-color:var(--blue2); color:var(--blue2); }
+
+    /* ── TRANSACTION FORM ────────────────────────────────────────── */
+    .txn-layout { display:grid; grid-template-columns:1fr 340px; gap:24px; }
+    .txn-info-panel {
+      background:#f8faff; border:1.5px solid #dbeafe; border-radius:var(--radius);
+      padding:24px;
+    }
+    .txn-info-panel h3 { font-family:var(--font-h); font-size:17px; margin-bottom:20px; }
+    .info-row { display:flex; justify-content:space-between; padding:14px 0; border-bottom:1px solid #dbeafe; font-size:14px; }
+    .info-row:last-child { border-bottom:none; }
+    .info-label { color:var(--gray); font-weight:500; }
+    .info-value { font-weight:700; color:#111827; }
+
+    /* ── BOTTOM GRID ─────────────────────────────────────────────── */
+    .bottom-grid { display:grid; grid-template-columns:2fr 1fr; gap:24px; margin-top:24px; }
+
+    /* ── TRANSACTION ITEM ────────────────────────────────────────── */
+    .txn-item { padding:16px 20px; border-bottom:1px solid #f3f4f6; display:flex; justify-content:space-between; align-items:center; }
+    .txn-item:last-child { border-bottom:none; }
+    .txn-item:hover { background:#fafafa; }
+    .txn-title { font-size:14px; font-weight:600; color:#111827; margin-bottom:3px; }
+    .txn-date  { font-size:12px; color:var(--gray); }
+    .txn-amount { font-size:16px; font-weight:700; }
+    .txn-amount.neg { color:#111827; }
+    .txn-amount.pos { color:var(--green); }
+
+    /* ── EMPTY STATE ─────────────────────────────────────────────── */
+    .empty { text-align:center; padding:60px 20px; color:var(--gray); }
+    .empty i { font-size:48px; margin-bottom:16px; opacity:.3; }
+    .empty p { font-size:15px; }
+
+    /* ── MODAL ───────────────────────────────────────────────────── */
+    .modal-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1000;
+      display:none; align-items:center; justify-content:center; padding:20px;
+    }
+    .modal-overlay.open { display:flex; }
+    .modal {
+      background:white; border-radius:20px; padding:32px;
+      width:100%; max-width:560px; box-shadow:0 20px 60px rgba(0,0,0,.2);
+      max-height:90vh; overflow-y:auto;
+    }
+    .modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; }
+    .modal-header h2 { font-family:var(--font-h); font-size:22px; font-weight:700; }
+    .modal-close { background:none; border:none; font-size:22px; cursor:pointer; color:var(--gray); }
+    .modal-footer { display:flex; gap:12px; justify-content:flex-end; margin-top:24px; }
+
+    /* ── LOADING SPINNER ─────────────────────────────────────────── */
+    .spinner {
+      width:20px; height:20px; border:2px solid rgba(255,255,255,.3);
+      border-top-color:white; border-radius:50%; animation:spin .7s linear infinite; display:none;
+    }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    /* ── PAGINATION ──────────────────────────────────────────────── */
+    .pagination { display:flex; gap:8px; align-items:center; justify-content:flex-end; padding:16px 20px; }
+    .page-btn {
+      padding:7px 13px; border-radius:8px; border:1px solid var(--border);
+      background:white; cursor:pointer; font-size:13px; font-weight:600; transition:.2s;
+    }
+    .page-btn:hover { background:#f3f4f6; }
+    .page-btn.active { background:var(--blue); color:white; border-color:var(--blue); }
+
+    /* ── SEARCH BAR ──────────────────────────────────────────────── */
+    .search-bar { position:relative; }
+    .search-bar i { position:absolute; left:13px; top:50%; transform:translateY(-50%); color:var(--gray); font-size:14px; }
+    .search-bar input { padding-left:38px !important; }
+
+    /* ── ARCHITECTURE ────────────────────────────────────────────── */
+    .arch-flow { display:flex; align-items:center; gap:16px; overflow-x:auto; padding:10px 0; }
+    .arch-node {
+      background:white; border:1.5px solid var(--border); border-radius:16px;
+      padding:20px; min-width:160px; text-align:center; flex-shrink:0;
+    }
+    .arch-node h4 { font-size:13px; font-weight:700; color:#111827; margin-bottom:12px; }
+    .arch-mini {
+      background:var(--blue); color:white; padding:8px 10px;
+      border-radius:8px; font-size:12px; margin-bottom:8px;
+    }
+    .arch-arrow { font-size:28px; color:var(--gray); flex-shrink:0; }
+    .arch-db { width:56px; height:56px; border:3px solid var(--blue2); border-radius:50%; margin:8px auto; }
+
+    /* ── SECURITY TABLE ACTIONS ──────────────────────────────────── */
+    .action-btns { display:flex; gap:6px; }
+    .action-btns button {
+      width:30px; height:30px; border-radius:7px; border:1px solid var(--border);
+      background:white; cursor:pointer; font-size:13px; transition:.2s;
+    }
+    .action-btns button:hover { background:#f3f4f6; }
+
+    /* ── RESPONSIVE ──────────────────────────────────────────────── */
+    @media(max-width:1200px) {
+      .stat-grid { grid-template-columns:repeat(2,1fr); }
+      .txn-layout { grid-template-columns:1fr; }
+      .bottom-grid { grid-template-columns:1fr; }
+    }
+    @media(max-width:768px) {
+      .sidebar { width:70px; min-width:70px; }
+      .brand-name, .nav-menu span, .user-info, .logout-btn span { display:none; }
+      .stat-grid { grid-template-columns:1fr 1fr; }
+      .form-grid { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ────────── TOAST ────────── -->
+<div id="toast"></div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     LOGIN
+═══════════════════════════════════════════════════════════════ -->
+<div id="page-login">
+  <div class="login-wrapper">
+    <div class="login-left">
+      <div class="bank-icon"><i class="fa-solid fa-building-columns"></i></div>
+      <h1>BANCO CENTRAL</h1>
+      <h2>Sistema de Gestión Bancaria</h2>
+      <p>Tu confianza, nuestro compromiso</p>
+    </div>
+    <div class="login-right">
+      <h2>Iniciar sesión</h2>
+      <p>Accede al sistema de gestión</p>
+      <div class="field">
+        <label>Usuario</label>
+        <input type="text" id="inp-user" placeholder="Ingresa tu usuario" autocomplete="username"/>
+      </div>
+      <div class="field">
+        <label>Contraseña</label>
+        <input type="password" id="inp-pass" placeholder="Ingresa tu contraseña" autocomplete="current-password"/>
+      </div>
+      <button class="login-btn" id="btn-login" onclick="doLogin()">
+        <span id="login-text">Iniciar sesión</span>
+        <div class="spinner" id="login-spinner"></div>
+      </button>
+      <div id="login-error">Credenciales inválidas. Intenta de nuevo.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     APP
+═══════════════════════════════════════════════════════════════ -->
+<div id="page-app">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-top">
+      <div class="sidebar-brand">
+        <div class="brand-icon"><i class="fa-solid fa-building-columns"></i></div>
+        <div class="brand-name">BANCO<br/>CENTRAL</div>
+      </div>
+      <ul class="nav-menu">
+        <li><a href="#" class="active" onclick="navigate('dashboard',this)"><i class="fa-solid fa-house"></i><span>Dashboard</span></a></li>
+        <li><a href="#" onclick="navigate('clientes',this)"><i class="fa-solid fa-users"></i><span>Clientes</span></a></li>
+        <li><a href="#" onclick="navigate('cuentas',this)"><i class="fa-regular fa-credit-card"></i><span>Cuentas</span></a></li>
+        <li><a href="#" onclick="navigate('transacciones',this)"><i class="fa-solid fa-money-bill-transfer"></i><span>Transacciones</span></a></li>
+        <li><a href="#" onclick="navigate('historial',this)"><i class="fa-solid fa-clock-rotate-left"></i><span>Historial</span></a></li>
+        <li><a href="#" onclick="navigate('seguridad',this)"><i class="fa-solid fa-shield-halved"></i><span>Seguridad</span></a></li>
+
+      </ul>
+    </div>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar" id="avatar-initials">A</div>
+        <div class="user-info">
+          <div class="name" id="sidebar-username">Admin</div>
+          <div class="role" id="sidebar-role">Administrador</div>
+        </div>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        <span>Cerrar sesión</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="topbar-title">Dashboard</div>
+      <div class="topbar-right">
+        <div class="notif">
+          <i class="fa-regular fa-bell"></i>
+          <div class="notif-badge">1</div>
+        </div>
+        <div class="notif"><i class="fa-regular fa-envelope"></i></div>
+      </div>
+    </div>
+
+    <div class="pages">
+
+      <!-- ─── DASHBOARD ─────────────────────────────────────────── -->
+      <div class="page active" id="p-dashboard">
+        <div class="stat-grid" id="stat-grid">
+          <div class="stat-card"><div class="stat-icon green"><i class="fa-solid fa-users"></i></div><div class="stat-info"><h4>Clientes Totales</h4><h3 id="s-clientes">—</h3></div></div>
+          <div class="stat-card"><div class="stat-icon blue"><i class="fa-regular fa-credit-card"></i></div><div class="stat-info"><h4>Cuentas Activas</h4><h3 id="s-cuentas">—</h3></div></div>
+          <div class="stat-card"><div class="stat-icon amber"><i class="fa-solid fa-sack-dollar"></i></div><div class="stat-info"><h4>Transacciones</h4><h3 id="s-trans">—</h3></div></div>
+          <div class="stat-card"><div class="stat-icon red"><i class="fa-solid fa-shield-halved"></i></div><div class="stat-info"><h4>Registros Auditoría</h4><h3 id="s-audit">—</h3></div></div>
+        </div>
+        <div class="bottom-grid">
+          <div class="panel">
+            <div class="panel-header"><div class="panel-title">Últimas Transacciones</div><button class="btn btn-outline btn-sm" onclick="navigate('historial',null)">Ver todas</button></div>
+            <div id="dash-txn-list"><div class="empty"><i class="fa-solid fa-receipt"></i><p>Cargando...</p></div></div>
+          </div>
+          <div class="panel">
+            <div class="panel-header"><div class="panel-title">Clientes Recientes</div></div>
+            <div id="dash-cli-list"><div class="empty"><i class="fa-solid fa-users"></i><p>Cargando...</p></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── CLIENTES ──────────────────────────────────────────── -->
+      <div class="page" id="p-clientes">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;gap:16px;flex-wrap:wrap">
+          <div class="search-bar" style="flex:1;max-width:360px">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="cli-search" placeholder="Buscar por nombre, DPI..." oninput="searchClientes()" class="btn-outline" style="width:100%;padding:10px 10px 10px 38px;border-radius:10px;border:1.5px solid var(--border);font-size:14px;font-family:var(--font-b);outline:none"/>
+          </div>
+          <button class="btn btn-primary" onclick="openModal('modal-cliente')"><i class="fa-solid fa-plus"></i> Nuevo Cliente</button>
+        </div>
+        <div class="panel">
+          <div class="panel-body">
+            <table>
+              <thead><tr><th>#</th><th>Número</th><th>Nombre</th><th>Documento</th><th>Email</th><th>Ciudad</th><th>Estado</th><th>Acciones</th></tr></thead>
+              <tbody id="cli-tbody"><tr><td colspan="8"><div class="empty"><i class="fa-solid fa-users"></i><p>Cargando clientes...</p></div></td></tr></tbody>
+            </table>
+          </div>
+          <div class="pagination" id="cli-pagination"></div>
+        </div>
+      </div>
+
+      <!-- ─── CUENTAS ───────────────────────────────────────────── -->
+      <div class="page" id="p-cuentas">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+          <p style="color:var(--gray);font-size:14px">Gestión de cuentas bancarias</p>
+          <button class="btn btn-primary" onclick="openModal('modal-cuenta')"><i class="fa-solid fa-plus"></i> Nueva Cuenta</button>
+        </div>
+        <div class="panel">
+          <div class="panel-body">
+            <table>
+              <thead><tr><th>Número</th><th>Titular</th><th>Tipo</th><th>Saldo</th><th>Estado</th><th>Apertura</th><th>Acciones</th></tr></thead>
+              <tbody id="cta-tbody"><tr><td colspan="7"><div class="empty"><i class="fa-regular fa-credit-card"></i><p>Cargando cuentas...</p></div></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── TRANSACCIONES ─────────────────────────────────────── -->
+      <div class="page" id="p-transacciones">
+        <div class="txn-tabs">
+          <div class="txn-tab active" onclick="setTxnTab('transferencia',this)"><i class="fa-solid fa-money-bill-transfer"></i> Transferencia</div>
+          <div class="txn-tab" onclick="setTxnTab('deposito',this)"><i class="fa-solid fa-arrow-down"></i> Depósito</div>
+          <div class="txn-tab" onclick="setTxnTab('retiro',this)"><i class="fa-solid fa-arrow-up"></i> Retiro</div>
+        </div>
+        <div class="txn-layout">
+          <div class="panel" style="padding:28px">
+            <h3 style="font-family:var(--font-h);font-size:20px;margin-bottom:22px" id="txn-form-title">Nueva Transferencia</h3>
+            <div id="txn-origen-group" class="form-group">
+              <label>Cuenta Origen (ID)</label>
+              <input type="number" id="txn-origen" placeholder="Ej: 1"/>
+            </div>
+            <div id="txn-destino-group" class="form-group">
+              <label>Cuenta Destino (ID)</label>
+              <input type="number" id="txn-destino" placeholder="Ej: 2"/>
+            </div>
+            <div class="form-group">
+              <label>Monto (USD)</label>
+              <input type="number" id="txn-monto" placeholder="0.00" min="0.01" step="0.01"/>
+            </div>
+            <div class="form-group">
+              <label>Descripción (opcional)</label>
+              <textarea id="txn-desc" placeholder="Ingresa una descripción"></textarea>
+            </div>
+            <div style="display:flex;gap:12px;margin-top:8px">
+              <button class="btn btn-outline" style="flex:1" onclick="clearTxnForm()">Limpiar</button>
+              <button class="btn btn-primary" style="flex:2" id="btn-txn" onclick="submitTxn()">
+                <i class="fa-solid fa-paper-plane"></i> Ejecutar Transacción
+              </button>
+            </div>
+          </div>
+          <div class="txn-info-panel">
+            <h3>Información</h3>
+            <div class="info-row"><span class="info-label">Tipo</span><span class="info-value" id="txn-tipo-label">Transferencia</span></div>
+            <div class="info-row"><span class="info-label">Comisión</span><span class="info-value">$ 0.00</span></div>
+            <div class="info-row"><span class="info-label">Límite diario</span><span class="info-value">$ 10,000.00</span></div>
+            <div class="info-row" style="border-bottom:none"><span class="info-label">Estado sistema</span><span class="info-value badge green">Operativo</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── HISTORIAL ─────────────────────────────────────────── -->
+      <div class="page" id="p-historial">
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;flex-wrap:wrap">
+          <div class="form-group" style="margin:0">
+            <label style="font-size:13px;font-weight:600;color:var(--gray);display:block;margin-bottom:6px">ID de Cuenta</label>
+            <input type="number" id="hist-cuenta-id" placeholder="Ej: 1" style="padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;outline:none;width:160px"/>
+          </div>
+          <button class="btn btn-primary" onclick="loadHistorial()" style="margin-top:20px"><i class="fa-solid fa-magnifying-glass"></i> Buscar</button>
+        </div>
+        <div class="panel">
+          <div class="panel-body">
+            <table>
+              <thead><tr><th>ID</th><th>Tipo</th><th>Monto</th><th>Descripción</th><th>Estado</th><th>Fecha</th><th>Operado por</th></tr></thead>
+              <tbody id="hist-tbody"><tr><td colspan="7"><div class="empty"><i class="fa-solid fa-clock-rotate-left"></i><p>Ingresa un ID de cuenta para ver el historial</p></div></td></tr></tbody>
+            </table>
+          </div>
+          <div class="pagination" id="hist-pagination"></div>
+        </div>
+      </div>
+
+      <!-- ─── SEGURIDAD ─────────────────────────────────────────── -->
+      <div class="page" id="p-seguridad">
+        <div style="display:flex;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+          <div style="display:flex;gap:20px;border-bottom:2px solid var(--border)">
+            <span style="padding-bottom:10px;font-weight:700;color:var(--blue);border-bottom:2px solid var(--blue);font-size:15px">Usuarios</span>
+            <span style="padding-bottom:10px;font-weight:600;color:var(--gray);font-size:15px;cursor:pointer" onclick="loadAuditoria()">Auditoría</span>
+          </div>
+          <button class="btn btn-primary" onclick="openModal('modal-usuario')"><i class="fa-solid fa-plus"></i> Nuevo Usuario</button>
+        </div>
+        <div class="panel" id="seg-usuarios-panel">
+          <div class="panel-body">
+            <table>
+              <thead><tr><th>Usuario</th><th>Email</th><th>Rol</th><th>Estado</th><th>Último acceso</th></tr></thead>
+              <tbody id="seg-tbody"><tr><td colspan="5"><div class="empty"><i class="fa-solid fa-shield-halved"></i><p>Cargando usuarios...</p></div></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="panel" id="audit-panel" style="display:none;margin-top:20px">
+          <div class="panel-header"><div class="panel-title">Log de Auditoría</div></div>
+          <div class="panel-body">
+            <table>
+              <thead><tr><th>Tabla</th><th>Operación</th><th>ID Registro</th><th>Usuario</th><th>Fecha</th></tr></thead>
+              <tbody id="audit-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:24px">
+          <div class="panel" style="padding:22px">
+            <h4 style="font-family:var(--font-h);margin-bottom:14px">Política de Contraseñas</h4>
+            <p style="font-size:13px;color:var(--green);margin-bottom:8px">✔ Mínimo 8 caracteres</p>
+            <p style="font-size:13px;color:var(--green);margin-bottom:8px">✔ Mayúsculas y minúsculas</p>
+            <p style="font-size:13px;color:var(--green)">✔ Números y símbolos</p>
+          </div>
+          <div class="panel" style="padding:22px">
+            <h4 style="font-family:var(--font-h);margin-bottom:14px">Autenticación (JWT)</h4>
+            <p style="font-size:13px;color:var(--gray);margin-bottom:12px">Token activo con expiración de 8 horas</p>
+            <span class="badge green">Sistema Seguro</span>
+          </div>
+          <div class="panel" style="padding:22px">
+            <h4 style="font-family:var(--font-h);margin-bottom:14px">Sesión Actual</h4>
+            <p style="font-size:13px;color:var(--gray);margin-bottom:8px">Usuario: <strong id="sess-user">—</strong></p>
+            <p style="font-size:13px;color:var(--gray)">Rol: <strong id="sess-rol">—</strong></p>
+          </div>
+        </div>
+      </div>
+
+
+
+    </div><!-- /pages -->
+  </div><!-- /main -->
+</div><!-- /page-app -->
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MODALS
+═══════════════════════════════════════════════════════════════ -->
+
+<!-- MODAL CLIENTE -->
+<div class="modal-overlay" id="modal-cliente">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Nuevo Cliente</h2>
+      <button class="modal-close" onclick="closeModal('modal-cliente')">✕</button>
+    </div>
+    <div class="form-grid">
+      <div class="form-group"><label>Número de Cliente *</label><input type="text" id="c-numcli" placeholder="CLI-001"/></div>
+      <div class="form-group"><label>Tipo de Documento</label><input type="text" id="c-tipodoc" placeholder="DPI"/></div>
+      <div class="form-group"><label>Número de Documento *</label><input type="text" id="c-numdoc" placeholder="1234567890101"/></div>
+      <div class="form-group"><label>Nombre *</label><input type="text" id="c-nombre" placeholder="Juan"/></div>
+      <div class="form-group"><label>Apellido *</label><input type="text" id="c-apellido" placeholder="Pérez"/></div>
+      <div class="form-group"><label>Email</label><input type="email" id="c-email" placeholder="juan@email.com"/></div>
+      <div class="form-group"><label>Teléfono</label><input type="text" id="c-tel" placeholder="50201234567"/></div>
+      <div class="form-group"><label>Ciudad</label><input type="text" id="c-ciudad" placeholder="Guatemala"/></div>
+      <div class="form-group full"><label>Dirección</label><input type="text" id="c-dir" placeholder="Zona 10, Guatemala"/></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-cliente')">Cancelar</button>
+      <button class="btn btn-primary" onclick="crearCliente()"><i class="fa-solid fa-save"></i> Guardar Cliente</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CUENTA -->
+<div class="modal-overlay" id="modal-cuenta">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Nueva Cuenta</h2>
+      <button class="modal-close" onclick="closeModal('modal-cuenta')">✕</button>
+    </div>
+    <div class="form-grid">
+      <div class="form-group"><label>Número de Cuenta *</label><input type="text" id="ct-num" placeholder="CTA-00001"/></div>
+      <div class="form-group"><label>ID del Cliente *</label><input type="number" id="ct-cli" placeholder="1"/></div>
+      <div class="form-group"><label>Tipo de Cuenta *</label>
+        <select id="ct-tipo">
+          <option value="1">Ahorro</option>
+          <option value="2">Monetaria</option>
+        </select>
+      </div>
+      <div class="form-group"><label>ID Sucursal *</label><input type="number" id="ct-suc" placeholder="1" value="1"/></div>
+      <div class="form-group"><label>Límite Sobregiro</label><input type="number" id="ct-sobregiro" placeholder="0" value="0"/></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-cuenta')">Cancelar</button>
+      <button class="btn btn-primary" onclick="crearCuenta()"><i class="fa-solid fa-save"></i> Crear Cuenta</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL USUARIO -->
+<div class="modal-overlay" id="modal-usuario">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Nuevo Usuario del Sistema</h2>
+      <button class="modal-close" onclick="closeModal('modal-usuario')">✕</button>
+    </div>
+    <div class="form-grid">
+      <div class="form-group"><label>Username *</label><input type="text" id="u-user" placeholder="cajero01"/></div>
+      <div class="form-group"><label>Email *</label><input type="email" id="u-email" placeholder="cajero@banco.com"/></div>
+      <div class="form-group"><label>Contraseña *</label><input type="password" id="u-pass" placeholder="Mínimo 8 caracteres"/></div>
+      <div class="form-group"><label>Rol *</label>
+        <select id="u-rol">
+          <option value="1">Admin</option>
+          <option value="2">Cajero</option>
+          <option value="3">Cliente</option>
+        </select>
+      </div>
+      <div class="form-group"><label>ID Sucursal</label><input type="number" id="u-suc" placeholder="1" value="1"/></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-usuario')">Cancelar</button>
+      <button class="btn btn-primary" onclick="crearUsuario()"><i class="fa-solid fa-save"></i> Crear Usuario</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════════════════════════ -->
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────
+const API = 'http://localhost:4000/api';
+let token = localStorage.getItem('banco_token') || '';
+let currentUser = JSON.parse(localStorage.getItem('banco_user') || 'null');
+let currentTxnType = 'transferencia';
+let clientesPage = 1;
+
+// ── INIT ─────────────────────────────────────────────────────────
+window.onload = () => {
+  if (token && currentUser) showApp();
+  document.getElementById('inp-pass').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doLogin();
+  });
+};
+
+// ── TOAST ────────────────────────────────────────────────────────
+function toast(msg, type='info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `show ${type}`;
+  setTimeout(() => t.className = '', 3000);
+}
+
+// ── AUTH ─────────────────────────────────────────────────────────
+async function doLogin() {
+  const username = document.getElementById('inp-user').value.trim();
+  const password = document.getElementById('inp-pass').value;
+  if (!username || !password) { toast('Ingresa usuario y contraseña','error'); return; }
+
+  const btn = document.getElementById('btn-login');
+  document.getElementById('login-text').textContent = 'Ingresando...';
+  document.getElementById('login-spinner').style.display = 'block';
+  btn.disabled = true;
+  document.getElementById('login-error').style.display = 'none';
+
+  try {
+    const res = await fetch(`${API}/auth/login`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({username, password})
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error');
+    token = data.token;
+    currentUser = data.usuario;
+    localStorage.setItem('banco_token', token);
+    localStorage.setItem('banco_user', JSON.stringify(currentUser));
+    showApp();
+  } catch(e) {
+    document.getElementById('login-error').style.display = 'block';
+    toast(e.message,'error');
+  } finally {
+    document.getElementById('login-text').textContent = 'Iniciar sesión';
+    document.getElementById('login-spinner').style.display = 'none';
+    btn.disabled = false;
+  }
+}
+
+function showApp() {
+  document.getElementById('page-login').style.display = 'none';
+  document.getElementById('page-app').style.display = 'flex';
+  if (currentUser) {
+    document.getElementById('sidebar-username').textContent = currentUser.username;
+    document.getElementById('sidebar-role').textContent = currentUser.rol || 'Usuario';
+    document.getElementById('avatar-initials').textContent = currentUser.username[0].toUpperCase();
+    document.getElementById('sess-user').textContent = currentUser.username;
+    document.getElementById('sess-rol').textContent = currentUser.rol;
+  }
+  loadDashboard();
+}
+
+function doLogout() {
+  token = ''; currentUser = null;
+  localStorage.removeItem('banco_token');
+  localStorage.removeItem('banco_user');
+  document.getElementById('page-app').style.display = 'none';
+  document.getElementById('page-login').style.display = 'flex';
+  document.getElementById('inp-user').value = '';
+  document.getElementById('inp-pass').value = '';
+}
+
+// ── API HELPER ───────────────────────────────────────────────────
+async function apiFetch(path, opts={}) {
+  const res = await fetch(`${API}${path}`, {
+    ...opts,
+    headers: { 'Content-Type':'application/json', 'Authorization':`Bearer ${token}`, ...opts.headers }
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || `Error ${res.status}`);
+  return data;
+}
+
+// ── NAVIGATION ───────────────────────────────────────────────────
+function navigate(page, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-menu a').forEach(a => a.classList.remove('active'));
+  document.getElementById(`p-${page}`).classList.add('active');
+  if (el) el.classList.add('active');
+  const titles = {dashboard:'Dashboard',clientes:'Clientes',cuentas:'Cuentas',
+    transacciones:'Nueva Transacción',historial:'Historial',seguridad:'Seguridad'};
+  document.getElementById('topbar-title').textContent = titles[page] || page;
+  if (page==='clientes')     loadClientes();
+  if (page==='cuentas')      loadCuentas();
+  if (page==='seguridad')    loadUsuarios();
+  if (page==='historial')    { /* wait for search */ }
+}
+
+// ── DASHBOARD ────────────────────────────────────────────────────
+async function loadDashboard() {
+  try {
+    // Clientes
+    const cli = await apiFetch('/clientes?limite=5');
+    document.getElementById('s-clientes').textContent = cli.paginacion?.total ?? '—';
+
+    // Últimas transacciones de cuenta 1 para el dash
+    try {
+      const hist = await apiFetch('/transacciones/historial/1?limite=4');
+      renderDashTxn(hist.transacciones);
+    } catch { document.getElementById('dash-txn-list').innerHTML = '<div class="empty"><i class="fa-solid fa-receipt"></i><p>Sin transacciones</p></div>'; }
+
+    // Clientes recientes
+    renderDashCli(cli.clientes?.slice(0,5) || []);
+    document.getElementById('s-cuentas').textContent = '—';
+    document.getElementById('s-trans').textContent = hist?.paginacion?.total ?? '—';
+
+    // Auditoría count
+    try {
+      const aud = await apiFetch('/auditoria?limite=1');
+      document.getElementById('s-audit').textContent = aud.paginacion?.total ?? '—';
+    } catch { document.getElementById('s-audit').textContent = '—'; }
+
+  } catch(e) { toast('Error cargando dashboard','error'); }
+}
+
+function renderDashTxn(list) {
+  if (!list?.length) { document.getElementById('dash-txn-list').innerHTML = '<div class="empty"><i class="fa-solid fa-receipt"></i><p>Sin transacciones</p></div>'; return; }
+  document.getElementById('dash-txn-list').innerHTML = list.map(t => `
+    <div class="txn-item">
+      <div><div class="txn-title">${t.tipo_transaccion}</div><div class="txn-date">${fmtDate(t.fecha_hora)}</div></div>
+      <div class="txn-amount ${t.cuenta_origen_id ? 'neg':'pos'}">
+        ${t.cuenta_origen_id ? '-':'+'}$${parseFloat(t.monto).toFixed(2)}
+      </div>
+    </div>`).join('');
+}
+
+function renderDashCli(list) {
+  if (!list?.length) { document.getElementById('dash-cli-list').innerHTML = '<div class="empty"><i class="fa-solid fa-users"></i><p>Sin clientes</p></div>'; return; }
+  document.getElementById('dash-cli-list').innerHTML = list.map(c => `
+    <div class="txn-item">
+      <div><div class="txn-title">${c.nombre} ${c.apellido}</div><div class="txn-date">${c.numero_cliente}</div></div>
+      <span class="badge ${c.activo?'green':'red'}">${c.activo?'Activo':'Inactivo'}</span>
+    </div>`).join('');
+}
+
+// ── CLIENTES ─────────────────────────────────────────────────────
+let searchTimer;
+function searchClientes() {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => { clientesPage=1; loadClientes(); }, 400);
+}
+
+async function loadClientes(pagina=clientesPage) {
+  clientesPage = pagina;
+  const buscar = document.getElementById('cli-search')?.value || '';
+  try {
+    const data = await apiFetch(`/clientes?pagina=${pagina}&limite=10&buscar=${encodeURIComponent(buscar)}`);
+    renderClientes(data.clientes, data.paginacion);
+  } catch(e) { toast('Error cargando clientes','error'); }
+}
+
+function renderClientes(list, pg) {
+  const tbody = document.getElementById('cli-tbody');
+  if (!list?.length) { tbody.innerHTML = '<tr><td colspan="8"><div class="empty"><i class="fa-solid fa-users"></i><p>No se encontraron clientes</p></div></td></tr>'; return; }
+  tbody.innerHTML = list.map(c => `
+    <tr>
+      <td>${c.id}</td>
+      <td><strong>${c.numero_cliente}</strong></td>
+      <td>${c.nombre} ${c.apellido}</td>
+      <td>${c.numero_doc}</td>
+      <td>${c.email||'—'}</td>
+      <td>${c.ciudad||'—'}</td>
+      <td><span class="badge ${c.activo?'green':'red'}">${c.activo?'Activo':'Inactivo'}</span></td>
+      <td><button class="btn btn-outline btn-sm" onclick="verCuenta(${c.id})"><i class="fa-solid fa-eye"></i></button></td>
+    </tr>`).join('');
+
+  // Pagination
+  const pag = document.getElementById('cli-pagination');
+  if (!pg || pg.paginas <= 1) { pag.innerHTML=''; return; }
+  let html = '';
+  for (let i=1; i<=pg.paginas; i++) {
+    html += `<button class="page-btn ${i===pg.pagina?'active':''}" onclick="loadClientes(${i})">${i}</button>`;
+  }
+  pag.innerHTML = `<span style="font-size:13px;color:var(--gray);margin-right:8px">Total: ${pg.total}</span>${html}`;
+}
+
+async function crearCliente() {
+  const body = {
+    numero_cliente: document.getElementById('c-numcli').value.trim(),
+    nombre:         document.getElementById('c-nombre').value.trim(),
+    apellido:       document.getElementById('c-apellido').value.trim(),
+    tipo_documento: document.getElementById('c-tipodoc').value.trim() || 'DPI',
+    numero_doc:     document.getElementById('c-numdoc').value.trim(),
+    email:          document.getElementById('c-email').value.trim(),
+    telefono:       document.getElementById('c-tel').value.trim(),
+    ciudad:         document.getElementById('c-ciudad').value.trim(),
+    direccion:      document.getElementById('c-dir').value.trim(),
+  };
+  if (!body.numero_cliente || !body.nombre || !body.apellido || !body.numero_doc) {
+    toast('Completa los campos requeridos *','error'); return;
+  }
+  try {
+    await apiFetch('/clientes', { method:'POST', body:JSON.stringify(body) });
+    toast('Cliente creado exitosamente','success');
+    closeModal('modal-cliente');
+    loadClientes();
+  } catch(e) { toast(e.message,'error'); }
+}
+
+function verCuenta(cliId) { navigate('cuentas', document.querySelector('[onclick*="cuentas"]')); }
+
+// ── CUENTAS ──────────────────────────────────────────────────────
+async function loadCuentas() {
+  try {
+    // Traemos cuentas via clientes (workaround — no hay GET /cuentas general)
+    const data = await apiFetch('/clientes?limite=50');
+    const clientes = data.clientes || [];
+    // Cargar cuentas de cada cliente (hasta 10)
+    const cuentas = [];
+    for (const cli of clientes.slice(0,10)) {
+      try {
+        const d = await apiFetch(`/clientes/${cli.id}`);
+        (d.cuentas||[]).forEach(c => cuentas.push({...c, titular:`${cli.nombre} ${cli.apellido}`}));
+      } catch {}
+    }
+    renderCuentas(cuentas);
+  } catch(e) { toast('Error cargando cuentas','error'); }
+}
+
+function renderCuentas(list) {
+  const tbody = document.getElementById('cta-tbody');
+  if (!list?.length) { tbody.innerHTML = '<tr><td colspan="7"><div class="empty"><i class="fa-regular fa-credit-card"></i><p>No hay cuentas</p></div></td></tr>'; return; }
+  tbody.innerHTML = list.map(c => `
+    <tr>
+      <td><strong>${c.numero_cuenta}</strong></td>
+      <td>${c.titular||'—'}</td>
+      <td>${c.tipo_cuenta||'—'}</td>
+      <td><strong>$${parseFloat(c.saldo||0).toLocaleString('es-GT',{minimumFractionDigits:2})}</strong></td>
+      <td><span class="badge ${c.estado==='Activa'?'green':'red'}">${c.estado}</span></td>
+      <td>${fmtDate(c.fecha_apertura)}</td>
+      <td>
+        <div class="action-btns">
+          <button title="Ver historial" onclick="navigate('historial',null);document.getElementById('hist-cuenta-id').value=${c.id};loadHistorial()">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+          </button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+async function crearCuenta() {
+  const body = {
+    numero_cuenta:  document.getElementById('ct-num').value.trim(),
+    cliente_id:     parseInt(document.getElementById('ct-cli').value),
+    tipo_cuenta_id: parseInt(document.getElementById('ct-tipo').value),
+    sucursal_id:    parseInt(document.getElementById('ct-suc').value)||1,
+    limite_sobregiro: parseFloat(document.getElementById('ct-sobregiro').value)||0,
+  };
+  if (!body.numero_cuenta || !body.cliente_id) { toast('Número de cuenta e ID de cliente son requeridos','error'); return; }
+  try {
+    await apiFetch('/cuentas', { method:'POST', body:JSON.stringify(body) });
+    toast('Cuenta creada exitosamente','success');
+    closeModal('modal-cuenta');
+    loadCuentas();
+  } catch(e) { toast(e.message,'error'); }
+}
+
+// ── TRANSACCIONES ────────────────────────────────────────────────
+function setTxnTab(type, el) {
+  currentTxnType = type;
+  document.querySelectorAll('.txn-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  const labels = {transferencia:'Nueva Transferencia', deposito:'Nuevo Depósito', retiro:'Nuevo Retiro'};
+  document.getElementById('txn-form-title').textContent = labels[type];
+  document.getElementById('txn-tipo-label').textContent = labels[type].replace('Nueva ','').replace('Nuevo ','');
+  // Mostrar/ocultar campos
+  document.getElementById('txn-origen-group').style.display = type==='deposito' ? 'none' : 'block';
+  document.getElementById('txn-destino-group').style.display = type==='retiro'   ? 'none' : 'block';
+}
+
+function clearTxnForm() {
+  ['txn-origen','txn-destino','txn-monto','txn-desc'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+}
+
+async function submitTxn() {
+  const monto = parseFloat(document.getElementById('txn-monto').value);
+  const desc  = document.getElementById('txn-desc').value;
+  if (!monto || monto <= 0) { toast('Ingresa un monto válido','error'); return; }
+
+  let path, body;
+  if (currentTxnType === 'transferencia') {
+    const origen  = parseInt(document.getElementById('txn-origen').value);
+    const destino = parseInt(document.getElementById('txn-destino').value);
+    if (!origen || !destino) { toast('Ingresa las cuentas origen y destino','error'); return; }
+    path = '/transacciones/transferencia';
+    body = { cuenta_origen_id:origen, cuenta_destino_id:destino, monto, descripcion:desc };
+  } else if (currentTxnType === 'deposito') {
+    const destino = parseInt(document.getElementById('txn-destino').value);
+    if (!destino) { toast('Ingresa la cuenta destino','error'); return; }
+    path = '/transacciones/deposito';
+    body = { cuenta_destino_id:destino, monto, descripcion:desc };
+  } else {
+    const origen = parseInt(document.getElementById('txn-origen').value);
+    if (!origen) { toast('Ingresa la cuenta origen','error'); return; }
+    path = '/transacciones/retiro';
+    body = { cuenta_origen_id:origen, monto, descripcion:desc };
+  }
+
+  const btn = document.getElementById('btn-txn');
+  btn.disabled = true; btn.textContent = 'Procesando...';
+  try {
+    await apiFetch(path, { method:'POST', body:JSON.stringify(body) });
+    toast('Transacción ejecutada exitosamente ✓','success');
+    clearTxnForm();
+  } catch(e) { toast(e.message,'error'); }
+  finally { btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-paper-plane"></i> Ejecutar Transacción'; }
+}
+
+// ── HISTORIAL ────────────────────────────────────────────────────
+async function loadHistorial(pagina=1) {
+  const id = document.getElementById('hist-cuenta-id').value;
+  if (!id) { toast('Ingresa un ID de cuenta','error'); return; }
+  try {
+    const data = await apiFetch(`/transacciones/historial/${id}?pagina=${pagina}&limite=15`);
+    renderHistorial(data.transacciones, data.paginacion, id);
+  } catch(e) { toast(e.message,'error'); }
+}
+
+function renderHistorial(list, pg, cuentaId) {
+  const tbody = document.getElementById('hist-tbody');
+  if (!list?.length) { tbody.innerHTML = '<tr><td colspan="7"><div class="empty"><i class="fa-solid fa-clock-rotate-left"></i><p>No hay transacciones para esta cuenta</p></div></td></tr>'; return; }
+  tbody.innerHTML = list.map(t => `
+    <tr>
+      <td>${t.id}</td>
+      <td><span class="badge blue">${t.tipo_transaccion}</span></td>
+      <td><strong>$${parseFloat(t.monto).toFixed(2)}</strong></td>
+      <td>${t.descripcion||'—'}</td>
+      <td><span class="badge ${t.estado==='Completada'?'green':'amber'}">${t.estado}</span></td>
+      <td>${fmtDate(t.fecha_hora)}</td>
+      <td>${t.operado_por||'—'}</td>
+    </tr>`).join('');
+
+  const pag = document.getElementById('hist-pagination');
+  if (!pg || pg.paginas <= 1) { pag.innerHTML=''; return; }
+  let html = `<span style="font-size:13px;color:var(--gray);margin-right:8px">Total: ${pg.total}</span>`;
+  for (let i=1; i<=pg.paginas; i++) {
+    html += `<button class="page-btn ${i===pg.pagina?'active':''}" onclick="loadHistorial(${i})">${i}</button>`;
+  }
+  pag.innerHTML = html;
+}
+
+// ── SEGURIDAD ────────────────────────────────────────────────────
+async function loadUsuarios() {
+  // No hay GET /usuarios general en el backend — mostramos datos del usuario actual
+  const tbody = document.getElementById('seg-tbody');
+  if (!currentUser) return;
+  tbody.innerHTML = `<tr>
+    <td><strong>${currentUser.username}</strong></td>
+    <td>${currentUser.email||'—'}</td>
+    <td><span class="badge blue">${currentUser.rol}</span></td>
+    <td><span class="badge green">Activo</span></td>
+    <td>Sesión actual</td>
+  </tr>`;
+}
+
+async function loadAuditoria() {
+  document.getElementById('audit-panel').style.display = 'block';
+  try {
+    const data = await apiFetch('/auditoria?limite=20');
+    document.getElementById('s-audit').textContent = data.paginacion?.total ?? '—';
+    renderAuditoria(data.registros);
+  } catch(e) { toast(e.message,'error'); }
+}
+
+function renderAuditoria(list) {
+  const tbody = document.getElementById('audit-tbody');
+  if (!list?.length) { tbody.innerHTML = '<tr><td colspan="5"><div class="empty"><p>Sin registros</p></div></td></tr>'; return; }
+  tbody.innerHTML = list.map(r => `
+    <tr>
+      <td>${r.tabla_afectada}</td>
+      <td><span class="badge ${r.operacion==='INSERT'?'green':r.operacion==='DELETE'?'red':'blue'}">${r.operacion}</span></td>
+      <td>${r.registro_id}</td>
+      <td>${r.usuario||'sistema'}</td>
+      <td>${fmtDate(r.fecha_hora)}</td>
+    </tr>`).join('');
+}
+
+async function crearUsuario() {
+  const body = {
+    username:   document.getElementById('u-user').value.trim(),
+    email:      document.getElementById('u-email').value.trim(),
+    password:   document.getElementById('u-pass').value,
+    rol_id:     parseInt(document.getElementById('u-rol').value),
+    sucursal_id: parseInt(document.getElementById('u-suc').value)||1,
+  };
+  if (!body.username || !body.email || !body.password) { toast('Completa los campos requeridos *','error'); return; }
+  try {
+    await apiFetch('/auth/registro', { method:'POST', body:JSON.stringify(body) });
+    toast('Usuario creado exitosamente','success');
+    closeModal('modal-usuario');
+  } catch(e) { toast(e.message,'error'); }
+}
+
+// ── MODAL HELPERS ────────────────────────────────────────────────
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+
+// ── DATE FORMAT ──────────────────────────────────────────────────
+function fmtDate(str) {
+  if (!str) return '—';
+  const d = new Date(str);
+  return d.toLocaleDateString('es-GT',{day:'2-digit',month:'2-digit',year:'numeric'})
+       + ' ' + d.toLocaleTimeString('es-GT',{hour:'2-digit',minute:'2-digit'});
+}
+</script>
+</body>
+</html>

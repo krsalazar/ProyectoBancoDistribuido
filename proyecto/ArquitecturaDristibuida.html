@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
+
+    <h:head>
+        <title>Arquitectura Distribuida</title>
+
+        <style>
+
+            *{
+                margin:0;
+                padding:0;
+                box-sizing:border-box;
+                font-family: Arial, sans-serif;
+            }
+
+            body{
+                background:#f4f6fb;
+            }
+
+            .container{
+                display:flex;
+                height:100vh;
+            }
+
+            /* SIDEBAR */
+
+            .sidebar{
+                width:240px;
+                background:#071b3b;
+                color:white;
+                padding:20px 0;
+                display:flex;
+                flex-direction:column;
+                justify-content:space-between;
+            }
+
+            .logo{
+                font-size:28px;
+                font-weight:bold;
+                padding-left:25px;
+                margin-bottom:30px;
+            }
+
+            .menu{
+                list-style:none;
+            }
+
+            .menu li{
+                padding:14px 25px;
+                cursor:pointer;
+                transition:0.3s;
+            }
+
+            .menu li:hover{
+                background:#0d2f66;
+            }
+
+            .menu .active{
+                background:#1b4db1;
+                border-radius:8px;
+                margin:0 10px;
+            }
+
+            .logout{
+                padding:20px 25px;
+                cursor:pointer;
+            }
+
+            /* CONTENT */
+
+            .content{
+                flex:1;
+                padding:20px;
+            }
+
+            .topbar{
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                margin-bottom:20px;
+            }
+
+            .title{
+                font-size:28px;
+                font-weight:bold;
+                color:#1c1c1c;
+            }
+
+            .btn-refresh{
+                background:white;
+                border:1px solid #dcdcdc;
+                padding:10px 20px;
+                border-radius:8px;
+                cursor:pointer;
+                font-weight:bold;
+            }
+
+            /* TABS */
+
+            .tabs{
+                display:flex;
+                gap:30px;
+                margin-bottom:25px;
+                border-bottom:1px solid #ddd;
+            }
+
+            .tab{
+                padding-bottom:10px;
+                font-weight:bold;
+                color:#777;
+                cursor:pointer;
+            }
+
+            .tab.active{
+                color:#1b4db1;
+                border-bottom:3px solid #1b4db1;
+            }
+
+            /* ARCHITECTURE */
+
+            .architecture-box{
+                background:white;
+                border-radius:14px;
+                padding:30px;
+                box-shadow:0 2px 10px rgba(0,0,0,0.08);
+            }
+
+            .architecture{
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                gap:20px;
+            }
+
+            .block{
+                border:1px solid #d9d9d9;
+                border-radius:12px;
+                padding:20px;
+                width:220px;
+                text-align:center;
+                background:#fff;
+            }
+
+            .block h3{
+                margin-bottom:15px;
+                color:#2d2d2d;
+                font-size:18px;
+            }
+
+            .mini-box{
+                background:#0d3c8d;
+                color:white;
+                padding:10px;
+                margin-bottom:10px;
+                border-radius:8px;
+                font-size:14px;
+            }
+
+            .database{
+                width:70px;
+                height:70px;
+                border:4px solid #3a7bd5;
+                border-radius:50%;
+                margin:10px auto;
+            }
+
+            .arrow{
+                font-size:35px;
+                color:#6b6b6b;
+            }
+
+            /* FOOTER CARDS */
+
+            .footer-cards{
+                display:flex;
+                gap:20px;
+                margin-top:25px;
+            }
+
+            .card{
+                flex:1;
+                background:white;
+                border-radius:12px;
+                padding:20px;
+                box-shadow:0 2px 10px rgba(0,0,0,0.08);
+            }
+
+            .card-title{
+                color:#5f5f5f;
+                margin-bottom:10px;
+                font-size:14px;
+            }
+
+            .card-value{
+                font-size:28px;
+                font-weight:bold;
+                color:#1d1d1d;
+            }
+
+            .details-btn{
+                background:#1b4db1;
+                color:white;
+                border:none;
+                padding:12px 20px;
+                border-radius:8px;
+                cursor:pointer;
+                width:100%;
+                margin-top:10px;
+            }
+
+        </style>
+    </h:head>
+
+    <h:body>
+
+        <div class="container">
+
+            <!-- SIDEBAR -->
+            <div class="sidebar">
+
+                <div>
+
+                    <div class="logo">
+                        6
+                    </div>
+
+                    <ul class="menu">
+                        <li>Dashboard</li>
+                        <li>Cuentas</li>
+                        <li>Clientes</li>
+                        <li>Transacciones</li>
+                        <li>Reportes</li>
+                        <li>Seguridad</li>
+                        <li>Respaldo</li>
+                        <li class="active">Configuración</li>
+                    </ul>
+
+                </div>
+
+                <div class="logout">
+                    Cerrar sesión
+                </div>
+
+            </div>
+
+            <!-- MAIN CONTENT -->
+            <div class="content">
+
+                <div class="topbar">
+                    <div class="title">Arquitectura Distribuida</div>
+
+                    <button class="btn-refresh">
+                        Actualizar
+                    </button>
+                </div>
+
+                <!-- TABS -->
+                <div class="tabs">
+                    <div class="tab active">Vista General</div>
+                    <div class="tab">Nodos</div>
+                    <div class="tab">Servicios</div>
+                    <div class="tab">Monitoreo</div>
+                </div>
+
+                <!-- ARCHITECTURE -->
+                <div class="architecture-box">
+
+                    <div class="architecture">
+
+                        <!-- CLIENTES -->
+                        <div class="block">
+                            <h3>Clientes / Usuarios</h3>
+
+                            <p>Web / Móvil / ATM</p>
+                        </div>
+
+                        <div class="arrow">→</div>
+
+                        <!-- BALANCEADOR -->
+                        <div class="block">
+                            <h3>Balanceador de Carga</h3>
+
+                            <div class="database"></div>
+                        </div>
+
+                        <div class="arrow">→</div>
+
+                        <!-- SERVERS -->
+                        <div class="block">
+                            <h3>Servidores de Aplicación</h3>
+
+                            <div class="mini-box">App Server 1</div>
+                            <div class="mini-box">App Server 2</div>
+                            <div class="mini-box">App Server 3</div>
+                        </div>
+
+                        <div class="arrow">→</div>
+
+                        <!-- DATABASE -->
+                        <div class="block">
+                            <h3>Bases de Datos</h3>
+
+                            <div class="database"></div>
+                            <p>DB Principal</p>
+
+                            <br/>
+
+                            <div class="database"></div>
+                            <p>DB Réplica</p>
+                        </div>
+
+                        <div class="arrow">→</div>
+
+                        <!-- EXTERNAL SERVICES -->
+                        <div class="block">
+                            <h3>Servicios Externos</h3>
+
+                            <div class="mini-box">Pasarela de Pagos</div>
+                            <div class="mini-box">Servicio de Correo</div>
+                            <div class="mini-box">Reportes Externos</div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- FOOTER -->
+                <div class="footer-cards">
+
+                    <div class="card">
+                        <div class="card-title">Latencia Promedio</div>
+                        <div class="card-value">45 ms</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Disponibilidad del Sistema</div>
+                        <div class="card-value">99.98%</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Nodos Activos</div>
+                        <div class="card-value">8 / 8</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Transacciones por Minuto</div>
+                        <div class="card-value">1,248 tpm</div>
+
+                        <button class="details-btn">
+                            Ver detalles
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </h:body>
+</html>

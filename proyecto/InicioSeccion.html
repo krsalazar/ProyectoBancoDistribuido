@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <h:head>
+        <title>Inicio de Sesión</title>
+
+        <style type="text/css">
+
+            *{
+                margin:0;
+                padding:0;
+                box-sizing:border-box;
+                font-family: 'Segoe UI', sans-serif;
+            }
+
+            body{
+                background:#0b1220;
+            }
+
+            .container{
+                width:100%;
+                height:100vh;
+                display:flex;
+                justify-content:center;
+                align-items:center;
+                background:linear-gradient(135deg,#071a3d,#0d2d66);
+                padding:20px;
+            }
+
+            .login-wrapper{
+                width:1100px;
+                height:650px;
+                display:flex;
+                border-radius:25px;
+                overflow:hidden;
+                background:white;
+                box-shadow:0 10px 35px rgba(0,0,0,0.35);
+            }
+
+            /* PANEL IZQUIERDO */
+
+            .left-panel{
+                width:50%;
+                background:
+                    linear-gradient(rgba(0,0,0,0.55),rgba(0,0,0,0.55)),
+                    url('resources/images/banco.jpg');
+                background-size:cover;
+                background-position:center;
+                display:flex;
+                justify-content:center;
+                align-items:center;
+                text-align:center;
+                color:white;
+                padding:40px;
+            }
+
+            .left-content img{
+                width:110px;
+                margin-bottom:20px;
+            }
+
+            .left-content h1{
+                font-size:42px;
+                font-weight:bold;
+                margin-bottom:15px;
+            }
+
+            .left-content h2{
+                font-size:28px;
+                font-weight:500;
+                margin-bottom:10px;
+            }
+
+            .left-content p{
+                font-size:18px;
+                opacity:0.9;
+            }
+
+            /* PANEL DERECHO */
+
+            .right-panel{
+                width:50%;
+                background:white;
+                display:flex;
+                justify-content:center;
+                align-items:center;
+                padding:50px;
+            }
+
+            .login-box{
+                width:100%;
+                max-width:420px;
+            }
+
+            .login-title{
+                text-align:center;
+                margin-bottom:35px;
+            }
+
+            .login-title h2{
+                font-size:40px;
+                color:#111827;
+                margin-bottom:10px;
+            }
+
+            .login-title p{
+                color:#6b7280;
+                font-size:16px;
+            }
+
+            .field{
+                margin-bottom:20px;
+            }
+
+            .field label{
+                display:block;
+                margin-bottom:8px;
+                font-weight:600;
+                color:#374151;
+            }
+
+            .custom-input{
+                width:100% !important;
+            }
+
+            .custom-input input{
+                width:100% !important;
+                padding:14px !important;
+                border-radius:12px !important;
+                border:1px solid #d1d5db !important;
+                font-size:15px !important;
+            }
+
+            .options{
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                margin-bottom:25px;
+                font-size:14px;
+            }
+
+            .forgot{
+                color:#2563eb;
+                text-decoration:none;
+                font-weight:600;
+            }
+
+            .login-btn{
+                width:100% !important;
+                background:#1d4ed8 !important;
+                border:none !important;
+                border-radius:12px !important;
+                padding:14px !important;
+                font-size:18px !important;
+                font-weight:bold !important;
+            }
+
+            .divider{
+                text-align:center;
+                margin:30px 0;
+                color:#9ca3af;
+                position:relative;
+            }
+
+            .divider:before,
+            .divider:after{
+                content:'';
+                position:absolute;
+                top:50%;
+                width:40%;
+                height:1px;
+                background:#d1d5db;
+            }
+
+            .divider:before{
+                left:0;
+            }
+
+            .divider:after{
+                right:0;
+            }
+
+            .corp-btn{
+                width:100% !important;
+                background:white !important;
+                color:#1d4ed8 !important;
+                border:2px solid #d1d5db !important;
+                border-radius:12px !important;
+                padding:14px !important;
+                font-size:16px !important;
+                font-weight:600 !important;
+            }
+
+            @media(max-width:900px){
+
+                .login-wrapper{
+                    flex-direction:column;
+                    height:auto;
+                }
+
+                .left-panel,
+                .right-panel{
+                    width:100%;
+                    min-height:400px;
+                }
+            }
+
+        </style>
+
+    </h:head>
+
+    <h:body>
+
+        <div class="container">
+
+            <div class="login-wrapper">
+
+                <!-- PANEL IZQUIERDO -->
+                <div class="left-panel">
+
+                    <div class="left-content">
+
+                        <!-- LOGO -->
+                        <img src="resources/images/logo-bank.png" alt="Logo"/>
+
+                        <h1>BANCO CENTRAL</h1>
+
+                        <h2>Sistema de Gestión Bancaria</h2>
+
+                        <p>Tu confianza, nuestro compromiso</p>
+
+                    </div>
+
+                </div>
+
+                <!-- PANEL DERECHO -->
+                <div class="right-panel">
+
+                    <div class="login-box">
+
+                        <div class="login-title">
+                            <h2>Iniciar sesión</h2>
+                            <p>Accede a tu cuenta</p>
+                        </div>
+
+                        <h:form id="loginForm">
+
+                            <!-- USUARIO -->
+                            <div class="field">
+
+                                <label>Usuario</label>
+
+                                <p:inputText id="usuario"
+                                             styleClass="custom-input"
+                                             placeholder="Ingresa tu usuario"/>
+
+                            </div>
+
+                            <!-- PASSWORD -->
+                            <div class="field">
+
+                                <label>Contraseña</label>
+
+                                <p:password id="password"
+                                            styleClass="custom-input"
+                                            placeholder="Ingresa tu contraseña"
+                                            toggleMask="true"/>
+
+                            </div>
+
+                            <!-- OPCIONES -->
+                            <div class="options">
+
+                                <h:panelGroup>
+
+                                    <p:selectBooleanCheckbox id="recordar"/>
+
+                                    <h:outputText value=" Recordarme"/>
+
+                                </h:panelGroup>
+
+                                <h:outputLink value="#">
+                                    <span class="forgot">
+                                        ¿Olvidaste tu contraseña?
+                                    </span>
+                                </h:outputLink>
+
+                            </div>
+
+                            <!-- BOTÓN LOGIN -->
+                            <p:commandButton value="Iniciar sesión"
+                                             icon="pi pi-sign-in"
+                                             styleClass="login-btn"/>
+
+                            <!-- DIVISOR -->
+                            <div class="divider">
+                                o continúa con
+                            </div>
+
+                            <!-- BOTÓN CORPORATIVO -->
+                            <p:commandButton value="Autenticación corporativa"
+                                             icon="pi pi-shield"
+                                             styleClass="corp-btn"/>
+
+                        </h:form>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </h:body>
+</html>

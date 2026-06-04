@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Transacciones Bancarias</title>
+
+        <link rel="stylesheet"
+              href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+
+        <style type="text/css">
+
+            *{
+                margin:0;
+                padding:0;
+                box-sizing:border-box;
+                font-family:'Segoe UI', sans-serif;
+            }
+
+            body{
+                background:#f4f7fc;
+                overflow:hidden;
+            }
+
+            .container{
+                display:flex;
+                width:100%;
+                height:100vh;
+            }
+
+            /* SIDEBAR */
+
+            .sidebar{
+                width:280px;
+                background:linear-gradient(180deg,#031633,#0a2f73);
+                color:white;
+                display:flex;
+                flex-direction:column;
+                justify-content:space-between;
+                padding:20px 0;
+            }
+
+            .logo-section{
+                padding:0 25px;
+            }
+
+            .logo-title{
+                display:flex;
+                align-items:center;
+                gap:15px;
+                margin-bottom:40px;
+            }
+
+            .logo-box{
+                width:42px;
+                height:42px;
+                background:#2563eb;
+                border-radius:10px;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                font-size:22px;
+                font-weight:bold;
+            }
+
+            .logo-title h2{
+                font-size:18px;
+                font-weight:700;
+            }
+
+            .menu{
+                list-style:none;
+            }
+
+            .menu li{
+                margin:8px 15px;
+            }
+
+            .menu a{
+                display:flex;
+                align-items:center;
+                gap:15px;
+                color:white;
+                text-decoration:none;
+                padding:16px 18px;
+                border-radius:12px;
+                transition:0.3s;
+                font-size:17px;
+                font-weight:500;
+            }
+
+            .menu a:hover{
+                background:#1749b3;
+            }
+
+            .menu .active{
+                background:#1d4ed8;
+            }
+
+            .logout{
+                padding:20px;
+            }
+
+            .logout a{
+                color:white;
+                text-decoration:none;
+                display:flex;
+                align-items:center;
+                gap:15px;
+                font-size:18px;
+                font-weight:600;
+            }
+
+            /* MAIN CONTENT */
+
+            .main-content{
+                flex:1;
+                padding:25px;
+                overflow:auto;
+            }
+
+            .card{
+                background:white;
+                border-radius:20px;
+                padding:25px;
+                box-shadow:0 5px 18px rgba(0,0,0,0.08);
+            }
+
+            .top-header{
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                margin-bottom:25px;
+            }
+
+            .title h1{
+                font-size:38px;
+                color:#111827;
+                margin-bottom:5px;
+            }
+
+            .title span{
+                color:#6b7280;
+                font-size:16px;
+            }
+
+            .history-btn{
+                background:white !important;
+                color:#374151 !important;
+                border:1px solid #d1d5db !important;
+                border-radius:12px !important;
+                padding:12px 20px !important;
+                font-weight:600 !important;
+            }
+
+            /* TABS */
+
+            .tabs{
+                display:grid;
+                grid-template-columns:repeat(4,1fr);
+                gap:15px;
+                margin-bottom:25px;
+            }
+
+            .tab{
+                background:white;
+                border:1px solid #d1d5db;
+                padding:16px;
+                text-align:center;
+                border-radius:12px;
+                font-weight:600;
+                cursor:pointer;
+                transition:0.3s;
+            }
+
+            .tab.active{
+                background:#1d4ed8;
+                color:white;
+            }
+
+            /* CONTENT */
+
+            .content{
+                display:grid;
+                grid-template-columns:2fr 1fr;
+                gap:25px;
+            }
+
+            .form-section,
+            .info-section{
+                border:1px solid #e5e7eb;
+                border-radius:16px;
+                padding:25px;
+            }
+
+            .field{
+                margin-bottom:22px;
+            }
+
+            .field label{
+                display:block;
+                margin-bottom:10px;
+                font-weight:600;
+                color:#374151;
+                font-size:16px;
+            }
+
+            .custom-input input,
+            .custom-input textarea{
+                width:100% !important;
+                border-radius:12px !important;
+                border:1px solid #d1d5db !important;
+                padding:14px !important;
+                font-size:15px !important;
+            }
+
+            .custom-select{
+                width:100% !important;
+            }
+
+            .custom-select .ui-selectonemenu{
+                width:100% !important;
+                border-radius:12px !important;
+                height:50px !important;
+            }
+
+            .amount-group{
+                display:flex;
+            }
+
+            .amount-group input{
+                border-radius:12px 0 0 12px !important;
+            }
+
+            .currency{
+                width:90px;
+                background:#f3f4f6;
+                border:1px solid #d1d5db;
+                border-left:none;
+                border-radius:0 12px 12px 0;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                font-weight:bold;
+                color:#4b5563;
+            }
+
+            /* INFO PANEL */
+
+            .info-title{
+                font-size:20px;
+                font-weight:700;
+                margin-bottom:25px;
+                color:#111827;
+            }
+
+            .info-row{
+                display:flex;
+                justify-content:space-between;
+                margin-bottom:25px;
+                font-size:17px;
+            }
+
+            .info-label{
+                color:#4b5563;
+                font-weight:600;
+            }
+
+            .info-value{
+                font-weight:700;
+                color:#111827;
+            }
+
+            /* BUTTONS */
+
+            .bottom-buttons{
+                display:flex;
+                justify-content:space-between;
+                margin-top:35px;
+                gap:15px;
+            }
+
+            .cancel-btn{
+                width:100% !important;
+                background:white !important;
+                color:#374151 !important;
+                border:1px solid #d1d5db !important;
+                border-radius:12px !important;
+                padding:14px !important;
+                font-weight:600 !important;
+            }
+
+            .continue-btn{
+                width:100% !important;
+                background:#1d4ed8 !important;
+                border:none !important;
+                border-radius:12px !important;
+                padding:14px !important;
+                font-weight:700 !important;
+                font-size:16px !important;
+            }
+
+            @media(max-width:1100px){
+
+                .content{
+                    grid-template-columns:1fr;
+                }
+
+                .sidebar{
+                    width:90px;
+                }
+
+                .logo-title h2,
+                .menu span,
+                .logout span{
+                    display:none;
+                }
+            }
+
+        </style>
+
+    </h:head>
+
+    <h:body>
+
+        <div class="container">
+
+            <!-- SIDEBAR -->
+            <div class="sidebar">
+
+                <div>
+
+                    <div class="logo-section">
+
+                        <div class="logo-title">
+
+                            <div class="logo-box">
+                                3
+                            </div>
+
+                            <h2>Transacciones bancarias</h2>
+
+                        </div>
+
+                    </div>
+
+                    <ul class="menu">
+
+                        <li>
+                            <a href="#">
+                                <i class="fa-solid fa-house"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#">
+                                <i class="fa-regular fa-credit-card"></i>
+                                <span>Cuentas</span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#">
+                                <i class="fa-solid fa-users"></i>
+                                <span>Clientes</span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#" class="active">
+                                <i class="fa-solid fa-money-bill-transfer"></i>
+                                <span>Transacciones</span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#">
+                                <i class="fa-solid fa-chart-column"></i>
+                                <span>Reportes</span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#">
+                                <i class="fa-solid fa-shield-halved"></i>
+                                <span>Seguridad</span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#">
+                                <i class="fa-solid fa-hard-drive"></i>
+                                <span>Respaldo</span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#">
+                                <i class="fa-solid fa-gear"></i>
+                                <span>Configuración</span>
+                            </a>
+                        </li>
+
+                    </ul>
+
+                </div>
+
+                <div class="logout">
+
+                    <a href="#">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                        <span>Cerrar sesión</span>
+                    </a>
+
+                </div>
+
+            </div>
+
+            <!-- MAIN -->
+            <div class="main-content">
+
+                <div class="card">
+
+                    <!-- HEADER -->
+                    <div class="top-header">
+
+                        <div class="title">
+
+                            <h1>Nueva Transacción</h1>
+
+                            <span>
+                                Transacciones &gt; Nueva Transacción
+                            </span>
+
+                        </div>
+
+                        <p:commandButton value="Historial de Transacciones"
+                                         icon="pi pi-history"
+                                         styleClass="history-btn"/>
+
+                    </div>
+
+                    <!-- TABS -->
+                    <div class="tabs">
+
+                        <div class="tab active">
+                            Transferencia
+                        </div>
+
+                        <div class="tab">
+                            Depósito
+                        </div>
+
+                        <div class="tab">
+                            Retiro
+                        </div>
+
+                        <div class="tab">
+                            Pago de Servicio
+                        </div>
+
+                    </div>
+
+                    <!-- CONTENT -->
+                    <div class="content">
+
+                        <!-- FORM -->
+                        <div class="form-section">
+
+                            <h:form id="transactionForm">
+
+                                <!-- CUENTA ORIGEN -->
+                                <div class="field">
+
+                                    <label>Cuenta Origen</label>
+
+                                    <p:selectOneMenu styleClass="custom-select">
+
+                                        <f:selectItem itemLabel="Seleccione una cuenta"
+                                                      itemValue=""/>
+
+                                        <f:selectItem itemLabel="Cuenta Ahorro - 1001"
+                                                      itemValue="1"/>
+
+                                        <f:selectItem itemLabel="Cuenta Monetaria - 1002"
+                                                      itemValue="2"/>
+
+                                    </p:selectOneMenu>
+
+                                </div>
+
+                                <!-- CUENTA DESTINO -->
+                                <div class="field">
+
+                                    <label>Cuenta Destino</label>
+
+                                    <p:selectOneMenu styleClass="custom-select">
+
+                                        <f:selectItem itemLabel="Seleccione una cuenta"
+                                                      itemValue=""/>
+
+                                        <f:selectItem itemLabel="Cuenta Empresarial - 2001"
+                                                      itemValue="1"/>
+
+                                        <f:selectItem itemLabel="Cuenta Personal - 2002"
+                                                      itemValue="2"/>
+
+                                    </p:selectOneMenu>
+
+                                </div>
+
+                                <!-- MONTO -->
+                                <div class="field">
+
+                                    <label>Monto</label>
+
+                                    <div class="amount-group">
+
+                                        <p:inputText placeholder="0.00"
+                                                     styleClass="custom-input"/>
+
+                                        <div class="currency">
+                                            USD
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                                <!-- DESCRIPCION -->
+                                <div class="field">
+
+                                    <label>Descripción (opcional)</label>
+
+                                    <p:inputTextarea rows="4"
+                                                     autoResize="false"
+                                                     styleClass="custom-input"
+                                                     placeholder="Ingrese una descripción"/>
+
+                                </div>
+
+                            </h:form>
+
+                        </div>
+
+                        <!-- INFO -->
+                        <div class="info-section">
+
+                            <div class="info-title">
+                                Información de la Transacción
+                            </div>
+
+                            <div class="info-row">
+
+                                <div class="info-label">
+                                    Tipo:
+                                </div>
+
+                                <div class="info-value">
+                                    Transferencia
+                                </div>
+
+                            </div>
+
+                            <div class="info-row">
+
+                                <div class="info-label">
+                                    Comisión:
+                                </div>
+
+                                <div class="info-value">
+                                    $ 0.00
+                                </div>
+
+                            </div>
+
+                            <div class="info-row">
+
+                                <div class="info-label">
+                                    Límite Diario:
+                                </div>
+
+                                <div class="info-value">
+                                    $ 10,000.00
+                                </div>
+
+                            </div>
+
+                            <div class="info-row">
+
+                                <div class="info-label">
+                                    Disponible Diario:
+                                </div>
+
+                                <div class="info-value">
+                                    $ 7,850.00
+                                </div>
+
+                            </div>
+
+                            <!-- BOTONES -->
+                            <div class="bottom-buttons">
+
+                                <p:commandButton value="Cancelar"
+                        </div>
+
+                    </div>
+
+                </div>
+
+                </h:body>
+                </html>
+
+                styleClass="cancel-btn"/>
+
+                <p:commandButton value="Continuar"
+                                 styleClass="continue-btn"/>
+
+            </div>
+
+        </div>
+
+    </div>

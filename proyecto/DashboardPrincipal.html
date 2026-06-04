@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Dashboard Bancario</title>
+
+        <!-- FONT AWESOME -->
+        <link rel="stylesheet"
+              href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+
+        <style type="text/css">
+
+            *{
+                margin:0;
+                padding:0;
+                box-sizing:border-box;
+                font-family:'Segoe UI', sans-serif;
+            }
+
+            body{
+                background:#f5f7fb;
+                overflow:hidden;
+            }
+
+            .container{
+                display:flex;
+                width:100%;
+                height:100vh;
+            }
+
+            /* =========================
+               SIDEBAR
+            ========================== */
+
+            .sidebar{
+                width:320px;
+                background:linear-gradient(180deg,#04142d,#082b69);
+                color:white;
+                display:flex;
+                flex-direction:column;
+                justify-content:space-between;
+            }
+
+            .sidebar-top{
+                padding:20px;
+            }
+
+            .dashboard-title{
+                display:flex;
+                align-items:center;
+                gap:18px;
+                margin-bottom:30px;
+            }
+
+            .number-box{
+                width:48px;
+                height:48px;
+                background:#2563eb;
+                border-radius:12px;
+                display:flex;
+                justify-content:center;
+                align-items:center;
+                font-size:24px;
+                font-weight:bold;
+            }
+
+            .dashboard-title h1{
+                font-size:20px;
+                font-weight:700;
+            }
+
+            .bank-logo{
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                margin-bottom:35px;
+                padding:10px 15px;
+            }
+
+            .bank-info{
+                display:flex;
+                align-items:center;
+                gap:15px;
+            }
+
+            .bank-icon{
+                font-size:42px;
+            }
+
+            .bank-text h2{
+                font-size:18px;
+                line-height:1.2;
+            }
+
+            .collapse-icon{
+                font-size:22px;
+                cursor:pointer;
+            }
+
+            .menu{
+                list-style:none;
+            }
+
+            .menu li{
+                margin-bottom:10px;
+            }
+
+            .menu a{
+                text-decoration:none;
+                color:white;
+                display:flex;
+                align-items:center;
+                gap:16px;
+                padding:16px 20px;
+                border-radius:14px;
+                font-size:18px;
+                font-weight:500;
+                transition:0.3s;
+            }
+
+            .menu a:hover{
+                background:#1d4ed8;
+            }
+
+            .menu .active{
+                background:#1d4ed8;
+            }
+
+            .logout{
+                padding:25px;
+            }
+
+            .logout a{
+                text-decoration:none;
+                color:white;
+                display:flex;
+                align-items:center;
+                gap:16px;
+                font-size:20px;
+                font-weight:600;
+            }
+
+            /* =========================
+               MAIN CONTENT
+            ========================== */
+
+            .main-content{
+                flex:1;
+                background:#f5f7fb;
+                overflow:auto;
+            }
+
+            /* HEADER */
+
+            .topbar{
+                background:white;
+                padding:18px 30px;
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                border-bottom:1px solid #e5e7eb;
+            }
+
+            .search-box{
+                position:relative;
+                width:320px;
+            }
+
+            .search-box i{
+                position:absolute;
+                top:15px;
+                left:15px;
+                color:#9ca3af;
+            }
+
+            .search-box input{
+                width:100%;
+                padding:14px 14px 14px 45px;
+                border:1px solid #d1d5db;
+                border-radius:12px;
+                font-size:15px;
+                outline:none;
+            }
+
+            .topbar-right{
+                display:flex;
+                align-items:center;
+                gap:25px;
+            }
+
+            .top-icons{
+                display:flex;
+                gap:20px;
+                font-size:20px;
+                color:#6b7280;
+            }
+
+            .notification{
+                position:relative;
+            }
+
+            .notification-badge{
+                position:absolute;
+                top:-5px;
+                right:-8px;
+                width:18px;
+                height:18px;
+                background:red;
+                border-radius:50%;
+                color:white;
+                font-size:11px;
+                display:flex;
+                justify-content:center;
+                align-items:center;
+            }
+
+            .profile{
+                display:flex;
+                align-items:center;
+                gap:15px;
+            }
+
+            .profile img{
+                width:52px;
+                height:52px;
+                border-radius:50%;
+            }
+
+            .profile-info h3{
+                font-size:18px;
+                color:#111827;
+            }
+
+            .profile-info p{
+                font-size:14px;
+                color:#6b7280;
+            }
+
+            /* =========================
+               DASHBOARD CONTENT
+            ========================== */
+
+            .dashboard{
+                padding:30px;
+            }
+
+            .dashboard h2{
+                margin-bottom:25px;
+                font-size:36px;
+                color:#111827;
+            }
+
+            /* CARDS */
+
+            .cards{
+                display:grid;
+                grid-template-columns:repeat(4,1fr);
+                gap:22px;
+                margin-bottom:30px;
+            }
+
+            .card{
+                background:white;
+                border-radius:18px;
+                padding:25px;
+                border:1px solid #e5e7eb;
+                box-shadow:0 3px 10px rgba(0,0,0,0.05);
+            }
+
+            .card-content{
+                display:flex;
+                align-items:center;
+                gap:20px;
+            }
+
+            .card-icon{
+                width:70px;
+                height:70px;
+                border-radius:50%;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                font-size:28px;
+            }
+
+            .green{
+                background:#ecfdf3;
+                color:#16a34a;
+            }
+
+            .yellow{
+                background:#fff7ed;
+                color:#ea580c;
+            }
+
+            .blue{
+                background:#eff6ff;
+                color:#2563eb;
+            }
+
+            .card-info h4{
+                color:#6b7280;
+                font-size:18px;
+                margin-bottom:10px;
+            }
+
+            .card-info h3{
+                font-size:38px;
+                color:#111827;
+                margin-bottom:12px;
+            }
+
+            .details-link{
+                color:#2563eb;
+                text-decoration:none;
+                font-weight:600;
+            }
+
+            /* BOTTOM GRID */
+
+            .bottom-grid{
+                display:grid;
+                grid-template-columns:2fr 1fr;
+                gap:25px;
+            }
+
+            /* CHART */
+
+            .chart-card{
+                background:white;
+                border-radius:18px;
+                border:1px solid #e5e7eb;
+                padding:25px;
+            }
+
+            .chart-header{
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                margin-bottom:25px;
+            }
+
+            .chart-header h3{
+                font-size:28px;
+                color:#111827;
+            }
+
+            .chart-select{
+                padding:12px 18px;
+                border:1px solid #d1d5db;
+                border-radius:10px;
+                font-size:15px;
+            }
+
+            /* TRANSACTIONS */
+
+            .transactions-card{
+                background:white;
+                border-radius:18px;
+                border:1px solid #e5e7eb;
+                padding:25px;
+            }
+
+            .transactions-header{
+                display:flex;
+                justify-content:space-between;
+                margin-bottom:25px;
+                align-items:center;
+            }
+
+            .transactions-header h3{
+                font-size:28px;
+            }
+
+            .transactions-header a{
+                text-decoration:none;
+                color:#2563eb;
+                font-weight:600;
+            }
+
+            .transaction-item{
+                padding:18px 0;
+                border-bottom:1px solid #f0f0f0;
+            }
+
+            .transaction-top{
+                display:flex;
+                justify-content:space-between;
+                margin-bottom:8px;
+            }
+
+            .transaction-title{
+                font-size:20px;
+                font-weight:600;
+                color:#111827;
+            }
+
+            .transaction-date{
+                font-size:16px;
+                color:#6b7280;
+            }
+
+            .negative{
+                color:#111827;
+                font-size:22px;
+                font-weight:700;
+            }
+
+            .positive{
+                color:#16a34a;
+                font-size:22px;
+                font-weight:700;
+            }
+
+            /* RESPONSIVE */
+
+            @media(max-width:1400px){
+
+                .cards{
+                    grid-template-columns:repeat(2,1fr);
+                }
+            }
+
+            @media(max-width:1100px){
+
+                .bottom-grid{
+                    grid-template-columns:1fr;
+                }
+
+                .sidebar{
+                    width:95px;
+                }
+
+                .dashboard-title h1,
+                .bank-text,
+                .menu span,
+                .logout span{
+                    display:none;
+                }
+            }
+
+        </style>
+
+    </h:head>
+
+    <h:body>
+
+        <div class="container">
+
+            <!-- SIDEBAR -->
+            <div class="sidebar">
+
+                <div class="sidebar-top">
+
+                    <!-- TITLE -->
+                    <div class="dashboard-title">
+
+                        <div class="number-box">
+                            2
+                        </div>
+
+                        <h1>Dashboard principal</h1>
+
+                    </div>
+
+                    <!-- LOGO -->
+                    <div class="bank-logo">
+
+                        <div class="bank-info">
+
+                            <div class="bank-icon">
+                                <i class="fa-solid fa-building-columns"></i>
+                            </div>
+
+                            <div class="bank-text">
+                                <h2>BANCO<br/>CENTRAL</h2>
+                            </div>
+
+                        </div>
+
+                        <div class="collapse-icon">
+                            <i class="fa-solid fa-angles-left"></i>
+                        </div>
+
+                    </div>
+
+                    <!-- MENU -->
+                    <ul class="menu">
+
+                        <li>
+                            <a href="#" class="active">
+                                <i class="fa-solid fa-house"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#">
+                                <i class="fa-regular fa-credit-card"></i>
+                                <span>Cuentas</span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#">
+                                <i class="fa-solid fa-users"></i>
+                                <span>Clientes</span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#">
+                                <i class="fa-solid fa-money-bill-transfer"></i>
+                                <span>Transacciones</span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#">
+                                <i class="fa-solid fa-chart-column"></i>
+                                <span>Reportes</span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#">
+                                <i class="fa-solid fa-shield-halved"></i>
+                                <span>Seguridad</span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#">
+                                <i class="fa-solid fa-hard-drive"></i>
+                                <span>Respaldo</span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#">
+                                <i class="fa-solid fa-gear"></i>
+                                <span>Configuración</span>
+                            </a>
+                        </li>
+
+                    </ul>
+
+                </div>
+
+                <!-- LOGOUT -->
+                <div class="logout">
+
+                    <a href="#">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                        <span>Cerrar sesión</span>
+                    </a>
+
+                </div>
+
+            </div>
+
+            <!-- MAIN CONTENT -->
+            <div class="main-content">
+
+                <!-- TOPBAR -->
+                <div class="topbar">
+
+                    <div class="search-box">
+
+                        <i class="fa-solid fa-magnifying-glass"></i>
+
+                        <input type="text"
+                               placeholder="Buscar..."/>
+
+                    </div>
+
+                    <div class="topbar-right">
+
+                        <div class="top-icons">
+
+                            <div class="notification">
+
+                                <i class="fa-regular fa-bell"></i>
+
+                                <div class="notification-badge">
+                                    1
+                                </div>
+
+                            </div>
+
+                            <i class="fa-regular fa-envelope"></i>
+
+                        </div>
+
+                        <div class="profile">
+
+                            <img src="https://i.pravatar.cc/100"
+                                 alt="profile"/>
+
+                            <div class="profile-info">
+
+                                <h3>Administrador</h3>
+
+                                <p>admin@banco.com</p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- DASHBOARD -->
+                <div class="dashboard">
+
+                    <h2>Resumen General</h2>
+
+                    <!-- CARDS -->
+                    <div class="cards">
+
+                        <!-- CARD 1 -->
+                        <div class="card">
+
+                            <div class="card-content">
+
+                                <div class="card-icon green">
+                                    <i class="fa-solid fa-user"></i>
+                                </div>
+
+                                <div class="card-info">
+
+                                    <h4>Clientes Totales</h4>
+
+                                    <h3>4,256</h3>
+
+                                    <a href="#" class="details-link">
+                                        Ver detalles
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <!-- CARD 2 -->
+                        <div class="card">
+
+                            <div class="card-content">
+
+                                <div class="card-icon green">
+                                    <i class="fa-solid fa-wallet"></i>
+                                </div>
+
+                                <div class="card-info">
+
+                                    <h4>Cuentas Activas</h4>
+
+                                    <h3>6,782</h3>
+
+                                    <a href="#" class="details-link">
+                                        Ver detalles
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <!-- CARD 3 -->
+                        <div class="card">
+
+                            <div class="card-content">
+
+                                <div class="card-icon yellow">
+                                    <i class="fa-solid fa-sack-dollar"></i>
+                                </div>
+
+                                <div class="card-info">
+
+                                    <h4>Saldo Total (USD)</h4>
+
+                                    <h3>$ 45,678,342.00</h3>
+
+                                    <a href="#" class="details-link">
+                                        Ver detalles
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <!-- CARD 4 -->
+                        <div class="card">
+
+                            <div class="card-content">
+
+                                <div class="card-icon blue">
+                                    <i class="fa-solid fa-sliders"></i>
+                                </div>
+
+                                <div class="card-info">
+
+                                    <h4>Transacciones Hoy</h4>
+
+                                    <h3>1,248</h3>
+
+                                    <a href="#" class="details-link">
+                                        Ver detalles
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- BOTTOM GRID -->
+                    <div class="bottom-grid">
+
+                        <!-- CHART -->
+                        <div class="chart-card">
+
+                            <div class="chart-header">
+
+                                <h3>Gráfica de Transacciones</h3>
+
+                                <select class="chart-select">
+
+                                    <option>Últimos 7 días</option>
+                                    <option>Últimos 30 días</option>
+
+                                </select>
+
+                            </div>
+
+                            <h:form>
+
+                                <p:lineChart model="#{dashboardBean.lineModel}"
+                                             style="width:100%; height:350px;"/>
+
+                            </h:form>
+
+                        </div>
+
+                        <!-- TRANSACTIONS -->
+                        <div class="transactions-card">
+
+                            <div class="transactions-header">
+
+                                <h3>Transacciones Recientes</h3>
+
+                                <a href="#">
+                                    Ver todas
+                                </a>
+
+                            </div>
+
+                            <!-- ITEM -->
+                            <div class="transaction-item">
+
+                                <div class="transaction-top">
+
+                                    <div>
+
+                                        <div class="transaction-title">
+                                            Transferencia a Juan Pérez
+                                        </div>
+
+                                        <div class="transaction-date">
+                                            21/05/2024 10:30
+                                        </div>
+
+                                    </div>
+
+                                    <div class="negative">
+                                        -$850.00
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <!-- ITEM -->
+                            <div class="transaction-item">
+
+                                <div class="transaction-top">
+
+                                    <div>
+
+                                        <div class="transaction-title">
+                                            Depósito de María López
+                                        </div>
+
+                                        <div class="transaction-date">
+                                            21/05/2024 09:15
+                                        </div>
+
+                                    </div>
+
+                                    <div class="positive">
+                                        +$1,200.00
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <!-- ITEM -->
+                            <div class="transaction-item">
+
+                                <div class="transaction-top">
+
+                                    <div>
+
+                                        <div class="transaction-title">
+                                            Retiro en ATM
+                                        </div>
+
+                                        <div class="transaction-date">
+                                            21/05/2024 08:45
+                                        </div>
+
+                                    </div>
+
+                                    <div class="negative">
+                                        -$200.00
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <!-- ITEM -->
+                            <div class="transaction-item">
+
+                                <div class="transaction-top">
+
+                                    <div>
+
+                                        <div class="transaction-title">
+                                            Pago de Servicio
+                                        </div>
+
+                                        <div class="transaction-date">
+                                            21/05/2024 08:20
+                                        </div>
+
+                                    </div>
+
+                                    <div class="negative">
+                                        -$75.50
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </h:body>
+</html>

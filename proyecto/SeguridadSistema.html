@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
+
+<h:head>
+    <title>Seguridad e Integridad</title>
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body{
+            background:#f3f5fa;
+        }
+
+        .container{
+            display:flex;
+            height:100vh;
+        }
+
+        /* SIDEBAR */
+
+        .sidebar{
+            width:240px;
+            background:linear-gradient(to bottom,#071a3d,#041126);
+            color:white;
+            display:flex;
+            flex-direction:column;
+            justify-content:space-between;
+            padding:20px 0;
+        }
+
+        .logo{
+            display:flex;
+            align-items:center;
+            gap:12px;
+            padding:0 20px;
+            margin-bottom:30px;
+        }
+
+        .logo-box{
+            width:42px;
+            height:42px;
+            background:#1e5cff;
+            border-radius:8px;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            font-size:22px;
+            font-weight:bold;
+        }
+
+        .logo-text{
+            font-size:28px;
+            font-weight:bold;
+        }
+
+        .menu{
+            list-style:none;
+        }
+
+        .menu li{
+            padding:14px 22px;
+            cursor:pointer;
+            transition:0.3s;
+            border-radius:10px;
+            margin:5px 10px;
+        }
+
+        .menu li:hover{
+            background:#123b82;
+        }
+
+        .menu .active{
+            background:#1b4db1;
+        }
+
+        .logout{
+            padding:20px;
+            cursor:pointer;
+        }
+
+        /* MAIN CONTENT */
+
+        .main{
+            flex:1;
+            padding:25px;
+        }
+
+        .panel{
+            background:white;
+            border-radius:16px;
+            padding:25px;
+            box-shadow:0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        .header{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin-bottom:25px;
+        }
+
+        .title{
+            font-size:30px;
+            font-weight:bold;
+            color:#1d1d1d;
+        }
+
+        .btn-user{
+            background:#1b4db1;
+            color:white;
+            border:none;
+            padding:12px 20px;
+            border-radius:8px;
+            cursor:pointer;
+            font-weight:bold;
+        }
+
+        /* TABS */
+
+        .tabs{
+            display:flex;
+            gap:40px;
+            border-bottom:1px solid #ddd;
+            margin-bottom:20px;
+        }
+
+        .tab{
+            padding-bottom:12px;
+            font-weight:bold;
+            color:#777;
+            cursor:pointer;
+        }
+
+        .tab.active{
+            color:#1b4db1;
+            border-bottom:3px solid #1b4db1;
+        }
+
+        /* TABLE */
+
+        table{
+            width:100%;
+            border-collapse:collapse;
+            margin-bottom:25px;
+        }
+
+        th{
+            text-align:left;
+            padding:15px;
+            color:#555;
+            border-bottom:1px solid #e5e5e5;
+        }
+
+        td{
+            padding:15px;
+            border-bottom:1px solid #efefef;
+            color:#333;
+        }
+
+        .status{
+            padding:6px 14px;
+            border-radius:20px;
+            font-size:13px;
+            font-weight:bold;
+            display:inline-block;
+        }
+
+        .active-status{
+            background:#dff5e5;
+            color:#2c9a4b;
+        }
+
+        .inactive-status{
+            background:#ffe4e4;
+            color:#d34c4c;
+        }
+
+        .actions{
+            display:flex;
+            gap:10px;
+        }
+
+        .action-btn{
+            width:32px;
+            height:32px;
+            border:1px solid #ddd;
+            border-radius:6px;
+            background:white;
+            cursor:pointer;
+        }
+
+        /* BOTTOM CARDS */
+
+        .cards{
+            display:flex;
+            gap:20px;
+        }
+
+        .card{
+            flex:1;
+            background:white;
+            border:1px solid #ececec;
+            border-radius:14px;
+            padding:20px;
+        }
+
+        .card h3{
+            margin-bottom:15px;
+            color:#222;
+        }
+
+        .list{
+            list-style:none;
+        }
+
+        .list li{
+            margin-bottom:10px;
+            color:#555;
+        }
+
+        .green{
+            color:#26a641;
+            font-weight:bold;
+        }
+
+        .card-text{
+            color:#666;
+            margin-bottom:20px;
+        }
+
+        .card-btn{
+            padding:10px 18px;
+            border-radius:8px;
+            border:2px solid #2fb15d;
+            background:white;
+            color:#2fb15d;
+            cursor:pointer;
+            font-weight:bold;
+        }
+
+        .blue-btn{
+            border:2px solid #1b4db1;
+            color:#1b4db1;
+        }
+
+    </style>
+</h:head>
+
+<h:body>
+
+<div class="container">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+
+        <div>
+
+            <div class="logo">
+                <div class="logo-box">4.</div>
+                <div class="logo-text">Seguridad e integridad</div>
+            </div>
+
+            <ul class="menu">
+                <li>Dashboard</li>
+                <li>Cuentas</li>
+                <li>Clientes</li>
+                <li>Transacciones</li>
+                <li>Reportes</li>
+                <li class="active">Seguridad</li>
+                <li>Respaldo</li>
+                <li>Configuración</li>
+            </ul>
+
+        </div>
+
+        <div class="logout">
+            Cerrar sesión
+        </div>
+
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+
+        <div class="panel">
+
+            <!-- HEADER -->
+            <div class="header">
+
+                <div class="title">
+                    Seguridad del Sistema
+                </div>
+
+                <button class="btn-user">
+                    + Nuevo Usuario
+                </button>
+
+            </div>
+
+            <!-- TABS -->
+            <div class="tabs">
+                <div class="tab active">Usuarios</div>
+                <div class="tab">Roles y Permisos</div>
+                <div class="tab">Auditoría</div>
+                <div class="tab">Políticas de Seguridad</div>
+            </div>
+
+            <!-- TABLE -->
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Rol</th>
+                        <th>Estado</th>
+                        <th>Último Acceso</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <tr>
+                        <td>admin</td>
+                        <td>Administrador</td>
+                        <td>
+                            <span class="status active-status">
+                                Activo
+                            </span>
+                        </td>
+                        <td>21/05/2024 10:25</td>
+                        <td>
+                            <div class="actions">
+                                <button class="action-btn">✏</button>
+                                <button class="action-btn">🔒</button>
+                                <button class="action-btn">🗑</button>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>maria.lopez</td>
+                        <td>Cajero</td>
+                        <td>
+                            <span class="status active-status">
+                                Activo
+                            </span>
+                        </td>
+                        <td>21/05/2024 09:40</td>
+                        <td>
+                            <div class="actions">
+                                <button class="action-btn">✏</button>
+                                <button class="action-btn">🔒</button>
+                                <button class="action-btn">🗑</button>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>juan.perez</td>
+                        <td>Analista</td>
+                        <td>
+                            <span class="status active-status">
+                                Activo
+                            </span>
+                        </td>
+                        <td>21/05/2024 08:56</td>
+                        <td>
+                            <div class="actions">
+                                <button class="action-btn">✏</button>
+                                <button class="action-btn">🔒</button>
+                                <button class="action-btn">🗑</button>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>soporte</td>
+                        <td>Soporte</td>
+                        <td>
+                            <span class="status inactive-status">
+                                Inactivo
+                            </span>
+                        </td>
+                        <td>19/05/2024 16:30</td>
+                        <td>
+                            <div class="actions">
+                                <button class="action-btn">✏</button>
+                                <button class="action-btn">🔒</button>
+                                <button class="action-btn">🗑</button>
+                            </div>
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+            <!-- BOTTOM CARDS -->
+            <div class="cards">
+
+                <!-- PASSWORD POLICY -->
+                <div class="card">
+
+                    <h3>Política de Contraseñas</h3>
+
+                    <ul class="list">
+                        <li><span class="green">✔</span> Mínimo 8 caracteres</li>
+                        <li><span class="green">✔</span> Incluir mayúsculas y minúsculas</li>
+                        <li><span class="green">✔</span> Incluir números y símbolos</li>
+                    </ul>
+
+                </div>
+
+                <!-- 2FA -->
+                <div class="card">
+
+                    <h3>Autenticación de Dos Factores (2FA)</h3>
+
+                    <p class="card-text">
+                        El 2FA está habilitado para todos los usuarios
+                    </p>
+
+                    <button class="card-btn">
+                        Gestionar 2FA
+                    </button>
+
+                </div>
+
+                <!-- ACTIVE SESSIONS -->
+                <div class="card">
+
+                    <h3>Sesiones Activas</h3>
+
+                    <p class="card-text">
+                        12 sesiones activas
+                    </p>
+
+                    <button class="card-btn blue-btn">
+                        Ver sesiones
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</h:body>
+</html>
